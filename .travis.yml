@@ -43,7 +43,7 @@ matrix:
         packages:
         - clang
         - clang++
-        - libstdc++-6-dev
+        - libstdc++-dev
         - libtbb-dev
 
   - os: osx
