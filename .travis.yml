@@ -1,28 +1,10 @@
-# This .travis.yml is based on LOOT's .travis.yml and boost's .travis.yml:
+# This .travis.yml is based on LOOT's .travis.yml and JuliaGPU's .travis.yml:
 # https://github.com/loot/loot/blob/dev/.travis.yml
-# https://github.com/boostorg/compute/blob/master/.travis.yml
+# https://github.com/JuliaGPU/OpenCL.jl/blob/783774e452b71a0eb6a4d26c3208dd2f0a564083/.travis.yml
 
 language: c++
 dist: trusty
 sudo: enabled
-
-env:
-  global:
-  - DEPS_DIR=${TRAVIS_BUILD_DIR}/deps
-  # OpenCL
-  - OPENCL_LIB=default
-  - OPENCL_HEADERS_VER="22"
-  # Khronos OpenCL ICD
-  - OPENCL_REGISTRY=https://www.khronos.org/registry/cl
-  - OPENCL_ROOT=${DEPS_DIR}/opencl
-  # POCL
-  - POCL_BRANCH=release_1_0 # branch/tag
-  - POCL_LLVM_VERSION=5.0.1
-  - POCL_ROOT=${OPENCL_ROOT}/pocl-${POCL_BRANCH}/
-  - POCL_LLVM_CONFIG=${DEPS_DIR}/llvm-${POCL_LLVM_VERSION}/bin/llvm-config
-  - POCL_CXX_COMPILER=${DEPS_DIR}/llvm-${POCL_LLVM_VERSION}/bin/clang++
-  - POCL_C_COMPILER=${DEPS_DIR}/llvm-${POCL_LLVM_VERSION}/bin/clang
-  - POCL_OPENCL_LIB=${POCL_ROOT}/lib/libOpenCL.so
 
 matrix:
   include:
@@ -63,55 +45,20 @@ before_install:
   - if [ $TRAVIS_OS_NAME != "osx" ]; then wget https://cmake.org/files/v3.12/cmake-3.12.0-Linux-x86_64.tar.gz; tar -xzf cmake-3.12.0-Linux-x86_64.tar.gz; export PATH="$PWD/cmake-3.12.0-Linux-x86_64/bin/:$PATH"; fi
   # Print the CMake version.
   - cmake --version
-# Install dependencies
-  - |
-    # POCL dependencies for Trusty
-    if [[ ${LINUX_DIST} == "trusty" && ${OPENCL_LIB} == "pocl" ]]; then
-      if [ -z "$(ls -A ${DEPS_DIR}/llvm-${POCL_LLVM_VERSION})" ]; then
-        POCL_LLVM_URL=http://llvm.org/releases/${POCL_LLVM_VERSION}/clang+llvm-${POCL_LLVM_VERSION}-x86_64-linux-gnu-ubuntu-14.04.tar.xz
-        mkdir -p ${DEPS_DIR}/llvm-${POCL_LLVM_VERSION}
-        travis_retry wget --no-check-certificate --quiet -O llvm-${POCL_LLVM_VERSION}.tar.xz ${POCL_LLVM_URL}
-        tar xf llvm-${POCL_LLVM_VERSION}.tar.xz -C ${DEPS_DIR}/llvm-${POCL_LLVM_VERSION} --strip-components 1
-      else
-        echo 'Using cached LLVM.'
-      fi
-    # OSX
-    elif [[ ${TRAVIS_OS_NAME} == "osx" ]]; then
-      brew update
-      /usr/bin/yes | pip uninstall numpy
-      brew outdated boost || brew upgrade boost
-      brew outdated cmake || brew upgrade cmake
-      brew install lcov # homebrew/science/opencv
-    fi
 
-install:
-  ############################################################################
-  # Download OpenCL headers (and cl.hpp)
-  ############################################################################
-  - |
-    mkdir -p ${OPENCL_ROOT}/include/CL
-    pushd ${OPENCL_ROOT}/include/CL
-    travis_retry git clone --depth 1 https://github.com/KhronosGroup/OpenCL-Headers.git
-    mv ./OpenCL-Headers/opencl${OPENCL_HEADERS_VER}/CL/* .
-    travis_retry wget -w 1 -np -nd -nv -A h,hpp --no-check-certificate ${OPENCL_REGISTRY}/api/2.1/cl.hpp;
-    popd
-  ############################################################################
-  # Build and install POCL https://github.com/pocl/pocl
-  ############################################################################
-  - |
-    if [[ ${TRAVIS_OS_NAME} == "linux" && ${OPENCL_LIB} == "pocl" ]]; then
-      if [ -z "$(ls -A ${POCL_ROOT}/)" ]; then
-        travis_retry git clone --depth 1 https://github.com/pocl/pocl.git -b ${POCL_BRANCH}
-        cd pocl
-        mkdir build
-        cd build
-        cmake -DDIRECT_LINKAGE=ON -DENABLE_ICD=OFF -DCMAKE_C_COMPILER=${POCL_C_COMPILER} -DCMAKE_CXX_COMPILER=${POCL_CXX_COMPILER} -DWITH_LLVM_CONFIG=${POCL_LLVM_CONFIG} -DCMAKE_INSTALL_PREFIX=${POCL_ROOT}/ ..
-        make install
-        cd ../..
-      else
-        echo 'Using cached POCL lib.'
-      fi
-    fi
+  - if [ $TRAVIS_OS_NAME = "linux" ]; then
+    bash .travis/amd_sdk.sh;
+    tar -xjf AMD-SDK.tar.bz2;
+    AMDAPPSDK=${HOME}/AMDAPPSDK;
+    export OPENCL_VENDOR_PATH=${AMDAPPSDK}/etc/OpenCL/vendors;
+    mkdir -p ${OPENCL_VENDOR_PATH};
+    sh AMD-APP-SDK*.sh --tar -xf -C ${AMDAPPSDK};
+    echo libamdocl64.so > ${OPENCL_VENDOR_PATH}/amdocl64.icd;
+    export LD_LIBRARY_PATH=${AMDAPPSDK}/lib/x86_64:${LD_LIBRARY_PATH};
+    chmod +x ${AMDAPPSDK}/bin/x86_64/clinfo;
+    ${AMDAPPSDK}/bin/x86_64/clinfo;
+    fi;
+
 
 script:
   - cmake CMakeLists.txt
