@@ -2,7 +2,7 @@
 # https://github.com/loot/loot/blob/dev/.travis.yml
 # https://github.com/JuliaGPU/OpenCL.jl/blob/783774e452b71a0eb6a4d26c3208dd2f0a564083/.travis.yml
 
-language: c++
+language: cpp
 dist: trusty
 sudo: enabled
 
