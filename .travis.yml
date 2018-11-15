@@ -1,0 +1,119 @@
+# This .travis.yml is based on LOOT's .travis.yml and boost's .travis.yml:
+# https://github.com/loot/loot/blob/dev/.travis.yml
+# https://github.com/boostorg/compute/blob/master/.travis.yml
+
+language: c++
+dist: trusty
+sudo: enabled
+
+addons:
+  apt:
+    packages: &default_packages
+      - libpocl-dev
+
+matrix:
+  include:
+  - os: linux
+    compiler: gcc
+    env:  CONFIG_IDENTIFIER='linux-gcc-6' CC_COMPILER_NAME='gcc-6' CXX_COMPILER_NAME='g++-6'
+    addons:
+      apt:
+        sources:
+          - ubuntu=toolchain-r-test
+          - mono
+        packages:
+        - *default_packages
+        - gcc-6
+        - g++-6
+
+  - os: linux
+    compiler: clang
+    env: CONFIG_IDENTIFIER='linux-clang-4.0-tbb' CC_COMPILER_NAME='clang-4.0' CXX_COMPILER_NAME='clang++-4.0'
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - llvm-toolchain-trusty-4.0
+        - mono
+        packages:
+        - *default_packages
+        - clang-4.0
+        - clang++-4.0
+        - libstdc++-6-dev
+        - libtbb-dev
+
+  - os: osx
+    osx_image: xcode8.3
+    compiler: clang
+    env: CONFIG_IDENTIFIER='osx-clang' CC_COMPILER_NAME='clang' CXX_COMPILER_NAME='clang++'
+
+before_install:
+  # If we're working with an OS X machine, then want to install homebrew packages (the APT packages
+  # will be ignored)
+  - if [ $TRAVIS_OS_NAME == "osx" ]; then brew update; brew install mono; brew install gcc; brew install mpich; brew install homebrew/science/hdf5; fi
+  - export CXX="$CXX_COMPILER_NAME" CC="$CC_COMPILER_NAME"
+  # Print the C++ compiler version.
+  - $CXX --version
+  # Print the Mono version number.
+  - mono --version
+  # Grab a relatively recent version of CMake, unzip it and add
+  # it to the path.
+  - if [ $TRAVIS_OS_NAME != "osx" ]; then wget https://cmake.org/files/v3.8/cmake-3.8.0-Linux-x86_64.tar.gz; tar -xzf cmake-3.8.0-Linux-x86_64.tar.gz; export PATH="$PWD/cmake-3.8.0-Linux-x86_64/bin/:$PATH"; fi
+  # Print the CMake version.
+  - cmake --version
+# Install dependencies
+  - |
+    # POCL dependencies for Trusty
+    if [[ ${LINUX_DIST} == "trusty" && ${OPENCL_LIB} == "pocl" ]]; then
+      if [ -z "$(ls -A ${DEPS_DIR}/llvm-${POCL_LLVM_VERSION})" ]; then
+        POCL_LLVM_URL=http://llvm.org/releases/${POCL_LLVM_VERSION}/clang+llvm-${POCL_LLVM_VERSION}-x86_64-linux-gnu-ubuntu-14.04.tar.xz
+        mkdir -p ${DEPS_DIR}/llvm-${POCL_LLVM_VERSION}
+        travis_retry wget --no-check-certificate --quiet -O llvm-${POCL_LLVM_VERSION}.tar.xz ${POCL_LLVM_URL}
+        tar xf llvm-${POCL_LLVM_VERSION}.tar.xz -C ${DEPS_DIR}/llvm-${POCL_LLVM_VERSION} --strip-components 1
+      else
+        echo 'Using cached LLVM.'
+      fi
+    # OSX
+    elif [[ ${TRAVIS_OS_NAME} == "osx" ]]; then
+      brew update
+      /usr/bin/yes | pip uninstall numpy
+      brew outdated boost || brew upgrade boost
+      brew outdated cmake || brew upgrade cmake
+      brew install lcov # homebrew/science/opencv
+    fi
+
+install:
+  ############################################################################
+  # Download OpenCL headers (and cl.hpp)
+  ############################################################################
+  - |
+    if [[ ${TRAVIS_OS_NAME} == "linux" ]]; then
+      mkdir -p ${OPENCL_ROOT}/include/CL
+      pushd ${OPENCL_ROOT}/include/CL
+      travis_retry git clone --depth 1 https://github.com/KhronosGroup/OpenCL-Headers.git
+      mv ./OpenCL-Headers/opencl${OPENCL_HEADERS_VER}/CL/* .
+      travis_retry wget -w 1 -np -nd -nv -A h,hpp --no-check-certificate ${OPENCL_REGISTRY}/api/2.1/cl.hpp;
+      popd
+    fi
+  ############################################################################
+  # Build and install POCL https://github.com/pocl/pocl
+  ############################################################################
+  - |
+    if [[ ${TRAVIS_OS_NAME} == "linux" && ${OPENCL_LIB} == "pocl" ]]; then
+      if [ -z "$(ls -A ${POCL_ROOT}/)" ]; then
+        travis_retry git clone --depth 1 https://github.com/pocl/pocl.git -b ${POCL_BRANCH}
+        cd pocl
+        mkdir build
+        cd build
+        cmake -DDIRECT_LINKAGE=ON -DENABLE_ICD=OFF -DCMAKE_C_COMPILER=${POCL_C_COMPILER} -DCMAKE_CXX_COMPILER=${POCL_CXX_COMPILER} -DWITH_LLVM_CONFIG=${POCL_LLVM_CONFIG} -DCMAKE_INSTALL_PREFIX=${POCL_ROOT}/ ..
+        make install
+        cd ../..
+      else
+        echo 'Using cached POCL lib.'
+      fi
+    fi
+
+script:
+  - cmake CMakeLists.txt
+  - make install
+
