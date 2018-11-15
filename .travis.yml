@@ -6,6 +6,23 @@ language: c++
 dist: trusty
 sudo: enabled
 
+env:
+  global:
+  # OpenCL
+  - OPENCL_LIB=default
+  - OPENCL_HEADERS_VER="22"
+  # Khronos OpenCL ICD
+  - OPENCL_REGISTRY=https://www.khronos.org/registry/cl
+  - OPENCL_ROOT=${DEPS_DIR}/opencl
+  # POCL
+  - POCL_BRANCH=release_1_0 # branch/tag
+  - POCL_LLVM_VERSION=5.0.1
+  - POCL_ROOT=${OPENCL_ROOT}/pocl-${POCL_BRANCH}/
+  - POCL_LLVM_CONFIG=${DEPS_DIR}/llvm-${POCL_LLVM_VERSION}/bin/llvm-config
+  - POCL_CXX_COMPILER=${DEPS_DIR}/llvm-${POCL_LLVM_VERSION}/bin/clang++
+  - POCL_C_COMPILER=${DEPS_DIR}/llvm-${POCL_LLVM_VERSION}/bin/clang
+  - POCL_OPENCL_LIB=${POCL_ROOT}/lib/libOpenCL.so
+
 matrix:
   include:
   - os: linux
