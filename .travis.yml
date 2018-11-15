@@ -6,11 +6,6 @@ language: c++
 dist: trusty
 sudo: enabled
 
-addons:
-  apt:
-    packages: &default_packages
-      - libpocl-dev
-
 matrix:
   include:
   - os: linux
@@ -22,9 +17,8 @@ matrix:
           - ubuntu=toolchain-r-test
           - mono
         packages:
-        - *default_packages
-        - gcc-6
-        - g++-6
+        - gcc
+        - g++
 
   - os: linux
     compiler: clang
@@ -36,7 +30,6 @@ matrix:
         - llvm-toolchain-trusty-4.0
         - mono
         packages:
-        - *default_packages
         - clang-4.0
         - clang++-4.0
         - libstdc++-6-dev
