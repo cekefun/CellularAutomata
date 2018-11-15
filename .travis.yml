@@ -37,12 +37,12 @@ matrix:
 
   - os: linux
     compiler: clang
-    env: CONFIG_IDENTIFIER='linux-clang-4.0-tbb' CC_COMPILER_NAME='clang-4.0' CXX_COMPILER_NAME='clang++-4.0'
+    env: CONFIG_IDENTIFIER='linux-clang-tbb' CC_COMPILER_NAME='clang' CXX_COMPILER_NAME='clang++'
     addons:
       apt:
         packages:
-        - clang-4.0
-        - clang++-4.0
+        - clang
+        - clang++
         - libstdc++-6-dev
         - libtbb-dev
 
