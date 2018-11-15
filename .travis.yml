@@ -10,7 +10,7 @@ matrix:
   include:
   - os: linux
     compiler: gcc
-    env:  CONFIG_IDENTIFIER='linux-gcc-6' CC_COMPILER_NAME='gcc-6' CXX_COMPILER_NAME='g++-6'
+    env:  CONFIG_IDENTIFIER='linux-gcc' CC_COMPILER_NAME='gcc' CXX_COMPILER_NAME='g++'
     addons:
       apt:
         sources:
