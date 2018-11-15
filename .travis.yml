@@ -93,14 +93,12 @@ install:
   # Download OpenCL headers (and cl.hpp)
   ############################################################################
   - |
-    if [[ ${TRAVIS_OS_NAME} == "linux" ]]; then
-      mkdir -p ${OPENCL_ROOT}/include/CL
-      pushd ${OPENCL_ROOT}/include/CL
-      travis_retry git clone --depth 1 https://github.com/KhronosGroup/OpenCL-Headers.git
-      mv ./OpenCL-Headers/opencl${OPENCL_HEADERS_VER}/CL/* .
-      travis_retry wget -w 1 -np -nd -nv -A h,hpp --no-check-certificate ${OPENCL_REGISTRY}/api/2.1/cl.hpp;
-      popd
-    fi
+    mkdir -p ${OPENCL_ROOT}/include/CL
+    pushd ${OPENCL_ROOT}/include/CL
+    travis_retry git clone --depth 1 https://github.com/KhronosGroup/OpenCL-Headers.git
+    mv ./OpenCL-Headers/opencl${OPENCL_HEADERS_VER}/CL/* .
+    travis_retry wget -w 1 -np -nd -nv -A h,hpp --no-check-certificate ${OPENCL_REGISTRY}/api/2.1/cl.hpp;
+    popd
   ############################################################################
   # Build and install POCL https://github.com/pocl/pocl
   ############################################################################
