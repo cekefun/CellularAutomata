@@ -47,14 +47,17 @@ before_install:
   - cmake --version
 
   - if [ $TRAVIS_OS_NAME = "linux" ]; then
-      bash .travis/amd_sdk.sh;
+      git clone https://gist.github.com/1faa40c2df51e3a9ee55.git amd;
+      cd amd;
+      bash amd_sdk.sh;
       tar -xjf AMD-SDK.tar.bz2;
       AMDAPPSDK=${HOME}/AMDAPPSDK;
       export OPENCL_VENDOR_PATH=${AMDAPPSDK}/etc/OpenCL/vendors;
       mkdir -p ${OPENCL_VENDOR_PATH};
-      sh AMD-APP-SDK.sh --tar -xf -C ${AMDAPPSDK};
+      sh AMD-APP-SDK*.sh --tar -xf -C ${AMDAPPSDK};
       echo libamdocl64.so > ${OPENCL_VENDOR_PATH}/amdocl64.icd;
       export LD_LIBRARY_PATH=${AMDAPPSDK}/lib/x86_64:${LD_LIBRARY_PATH};
+      cd ..;
       chmod +x ${AMDAPPSDK}/bin/x86_64/clinfo;
       ${AMDAPPSDK}/bin/x86_64/clinfo;
     fi;
