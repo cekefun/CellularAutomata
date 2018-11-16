@@ -53,5 +53,5 @@ before_install:
 
 script:
   - cmake CMakeLists.txt
-  - make install
+  - make
 
