@@ -15,7 +15,6 @@ matrix:
       apt:
         packages:
         - ocl-icd
-        - opencl-headers
         - gcc
         - g++
 
