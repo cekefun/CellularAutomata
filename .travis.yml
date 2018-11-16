@@ -41,7 +41,7 @@ matrix:
 before_install:
   # If we're working with an OS X machine, then want to install homebrew packages (the APT packages
   # will be ignored)
-  - if [ $TRAVIS_OS_NAME == "osx" ]; then brew update; brew install gcc; brew upgrade cmake; fi
+  - if [ $TRAVIS_OS_NAME == "osx" ]; then brew update; brew install gcc; brew install opencl; brew upgrade cmake; fi
   - export CXX="$CXX_COMPILER_NAME" CC="$CC_COMPILER_NAME"
   # Print the C++ compiler version.
   - $CXX --version
@@ -52,6 +52,6 @@ before_install:
   - cmake --version
 
 script:
-  - cmake CMakeLists.txt
+  - cmake -DAF_BUILD_OPENCL=ON CMakeLists.txt
   - make
 
