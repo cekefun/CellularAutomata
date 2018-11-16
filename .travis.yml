@@ -2,16 +2,16 @@ language: cpp
 dist: trusty
 sudo: enabled
 
+addons:
+  apt:
+    packages:
+    - opencl-headers
+
 env:
   global:
     - CLFFT_ROOT=${TRAVIS_BUILD_DIR}/bin/make/release
     - OPENCL_REGISTRY=https://www.khronos.org/registry/cl
     - OPENCL_ROOT=${TRAVIS_BUILD_DIR}/bin/opencl
-
-addons:
-  apt:
-    packages:
-    - opencl-headers
 
 matrix:
   include:
@@ -31,7 +31,6 @@ matrix:
       apt:
         packages:
         - clang
-        - clang++
 
   - os: osx
     osx_image: xcode8.3
