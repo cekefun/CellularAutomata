@@ -1,4 +1,9 @@
+#if __APPLE__
+#include <OpenCL/cl.hpp>
+#else
 #include <CL/cl.hpp>
+#endif
+
 #include <iostream>
 #include <array>
 #include <fstream>

@@ -1,7 +1,11 @@
 //
 // Created by cekef on 31-Oct-18.
 //
+#if __APPLE__
+#include <OpenCL/cl.hpp>
+#else
 #include <CL/cl.hpp>
+#endif
 #include <iostream>
 #include <fstream>
 cl::Program CreateProgram(const std::string& filename){
