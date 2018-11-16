@@ -18,6 +18,7 @@ matrix:
         packages:
         - gcc
         - g++
+        - opencl-headers
 
   - os: linux
     compiler: clang
