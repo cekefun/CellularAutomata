@@ -8,6 +8,11 @@ env:
     - OPENCL_REGISTRY=https://www.khronos.org/registry/cl
     - OPENCL_ROOT=${TRAVIS_BUILD_DIR}/bin/opencl
 
+addons:
+  apt:
+    packages:
+    - opencl-headers
+
 matrix:
   include:
   - os: linux
@@ -18,7 +23,6 @@ matrix:
         packages:
         - gcc
         - g++
-        - opencl-headers
 
   - os: linux
     compiler: clang
@@ -28,8 +32,6 @@ matrix:
         packages:
         - clang
         - clang++
-        - libstdc++-dev
-        - libtbb-dev
 
   - os: osx
     osx_image: xcode8.3
