@@ -1,10 +1,12 @@
-# This .travis.yml is based on LOOT's .travis.yml and JuliaGPU's .travis.yml:
-# https://github.com/loot/loot/blob/dev/.travis.yml
-# https://github.com/JuliaGPU/OpenCL.jl/blob/783774e452b71a0eb6a4d26c3208dd2f0a564083/.travis.yml
-
 language: cpp
 dist: trusty
 sudo: enabled
+
+env:
+  global:
+    - CLFFT_ROOT=${TRAVIS_BUILD_DIR}/bin/make/release
+    - OPENCL_REGISTRY=https://www.khronos.org/registry/cl
+    - OPENCL_ROOT=${TRAVIS_BUILD_DIR}/bin/opencl
 
 matrix:
   include:
@@ -14,7 +16,6 @@ matrix:
     addons:
       apt:
         packages:
-        - ocl-icd
         - gcc
         - g++
 
@@ -37,7 +38,7 @@ matrix:
 before_install:
   # If we're working with an OS X machine, then want to install homebrew packages (the APT packages
   # will be ignored)
-  - if [ $TRAVIS_OS_NAME == "osx" ]; then brew update; brew install mono; brew install gcc; brew install mpich; brew install homebrew/science/hdf5; fi
+  - if [ $TRAVIS_OS_NAME == "osx" ]; then brew update; brew install gcc; fi
   - export CXX="$CXX_COMPILER_NAME" CC="$CC_COMPILER_NAME"
   # Print the C++ compiler version.
   - $CXX --version
@@ -46,7 +47,34 @@ before_install:
   - if [ $TRAVIS_OS_NAME != "osx" ]; then wget https://cmake.org/files/v3.12/cmake-3.12.0-Linux-x86_64.tar.gz; tar -xzf cmake-3.12.0-Linux-x86_64.tar.gz; export PATH="$PWD/cmake-3.12.0-Linux-x86_64/bin/:$PATH"; fi
   # Print the CMake version.
   - cmake --version
+  - if [ ${TRAVIS_OS_NAME} == "linux" ]; then
+    export OPENCL_ROOT="${TRAVIS_BUILD_DIR}/opencl-headers";
+    fi
 
+install:
+- if [ ${TRAVIS_OS_NAME} == "linux" ]; then
+    mkdir -p ${OPENCL_ROOT};
+    pushd ${OPENCL_ROOT};
+    travis_retry git clone --depth 1 https://github.com/KhronosGroup/OpenCL-ICD-Loader.git;
+    mv ./OpenCL-ICD-Loader/* .;
+    travis_retry git clone --depth 1 https://github.com/KhronosGroup/OpenCL-Headers.git inc/CL_headers_repo;
+    pushd inc;
+    mkdir CL;
+    cp CL_headers_repo/opencl22/CL/* CL/;
+    popd;
+    mkdir -p lib;
+    pushd lib;
+    cmake -G "Unix Makefiles" ..;
+    make;
+    sudo cp ./lib/libOpenCL.so /usr/local/lib;
+    popd;
+    pushd inc/CL;
+    rm -rf *;
+    cp -r ../CL_headers_repo/opencl12/CL/* .;
+    popd;
+    sudo cp -r inc/CL /usr/local/include/;
+    popd;
+  fi
 
 script:
   - cmake CMakeLists.txt
