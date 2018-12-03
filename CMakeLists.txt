@@ -5,14 +5,18 @@ include(ExternalProject)
 
 set(CMAKE_CXX_STANDARD 11)
 
+option(USE_SYSTEM_GTEST "Use the google test framework installed on the system, if available" YES)
 find_package(GTest)
-if (NOT GTEST_FOUND)
+if (NOT GTEST_FOUND OR NOT USE_SYSTEM_GTEST)
     #Google test framework
     ExternalProject_Add(ext-gtest
         GIT_REPOSITORY https://github.com/google/googletest.git
-        CMAKE_ARGS -DBUILD_GMOCK=NO -DBUILD_GTEST=YES
+        GIT_TAG "release-1.8.1"
+        CMAKE_ARGS -DBUILD_GMOCK=NO
         INSTALL_COMMAND ""
+        UPDATE_COMMAND ""
         )
+
     add_library(gtest IMPORTED STATIC GLOBAL)
     add_dependencies(gtest ext-gtest)
     add_library(gtest_main IMPORTED STATIC GLOBAL)
@@ -30,15 +34,15 @@ if (NOT GTEST_FOUND)
         "IMPORTED_LOCATION" "${binary_dir}/googletest/${CMAKE_STATIC_LIBRARY_PREFIX}gtest_main${CMAKE_STATIC_LIBRARY_SUFFIX}"
         "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}"
         )
-    include_directories(${source_dir}/googletest/include)
+
+    set(GTEST_INCLUDE_DIRS ${source_dir}/googletest/include)
     set(GTEST_LIBRARIES gtest)
+    set(GTEST_MAIN_LIBRARIES gtest_main)
     set(GTEST_BOTH_LIBRARIES gtest_main gtest)
-else()
+else ()
     find_package(GTest REQUIRED)
     find_package(Threads REQUIRED)
-    include_directories(GTEST_INCLUDE_DIRS)
-    set(GTEST_BOTH_LIBRARIES gtest_main gtest ${CMAKE_THREAD_LIBS_INIT})
-endif()
+endif ()
 
 find_package(OpenCL)
 
