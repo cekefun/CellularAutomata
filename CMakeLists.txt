@@ -5,6 +5,8 @@ include(ExternalProject)
 
 set(CMAKE_CXX_STANDARD 11)
 
+ENABLE_TESTING()
+
 option(USE_SYSTEM_GTEST "Use the google test framework installed on the system, if available" YES)
 find_package(GTest)
 if (NOT GTEST_FOUND OR NOT USE_SYSTEM_GTEST)
