@@ -9,7 +9,8 @@
 #include <fstream>
 #include "gpu/Initialize.cpp"
 int main(){
-    cl::Program program = CreateProgram("../gpu/ProcessMultiArray.cl");
+    //cl::Program program = CreateProgram("../gpu/ProcessMultiArray.cl");
+    cl::Program program = CreateProgram("../gpu/ProcessByRow.cl");
 
     cl::Context context = program.getInfo<CL_PROGRAM_CONTEXT>();
     auto devices = context.getInfo<CL_CONTEXT_DEVICES>();
@@ -21,11 +22,13 @@ int main(){
     std::array<std::array<int, numCols>, numRows> arr = {{{0,1,0}, {0,1,0}, {0,1,0}}};
     std::array<std::array<int, numCols>, numRows> target = {{{0,0,0}, {0,0,0}, {0,0,0}}};
 
+    cl::Kernel kernel(program,"ProcessMultiArray");
     // Just allocate a target matrix
     cl::Buffer bufTarget(context, CL_MEM_READ_WRITE|CL_MEM_HOST_READ_ONLY|CL_MEM_COPY_HOST_PTR, sizeof(int)*count,target.data());
-
-    cl::Kernel kernel(program,"ProcessMultiArray");
     kernel.setArg(1, bufTarget);
+
+    // Set the amount of rows
+    kernel.setArg(2,numRows);
 
     for(int i= 0; i< 10; i++){
         // Load in current matrix
@@ -35,7 +38,8 @@ int main(){
 
 
         cl::CommandQueue queue(context,device);
-        queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(numRows, numCols));
+        //queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(numRows, numCols));
+        queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(numRows));
 
         queue.enqueueReadBuffer(bufTarget,1002,0, sizeof(int)*count,arr.data());
 
