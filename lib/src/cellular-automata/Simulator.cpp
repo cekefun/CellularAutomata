@@ -1,6 +1,6 @@
 #include "cellular-automata/Simulator.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 
 using namespace std;
 
