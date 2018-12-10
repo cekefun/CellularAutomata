@@ -1,6 +1,5 @@
 set(SOURCES
-    test_Fixed1DStorage.cpp
-    test_Fixed2DStorage.cpp
+    test_Empty.cpp
     )
 
 add_executable(libcellularautomata-test ${SOURCES})

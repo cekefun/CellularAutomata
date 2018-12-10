@@ -1,6 +1,7 @@
 #pragma once
 
-#include <cstdint>
+#include <cstddef>
+#include <memory>
 
 namespace CellularAutomata {
 
@@ -17,6 +18,10 @@ public:
     virtual ~IFlexibleArrayImpl() = default;
 
     virtual unsigned char * operator[](std::size_t index) = 0;
+
+    virtual const unsigned char * operator[](std::size_t index) const = 0;
+
+    virtual std::shared_ptr<IFlexibleArrayImpl> clone() const = 0;
 
     virtual std::size_t allocated_bytes() const = 0;
 
