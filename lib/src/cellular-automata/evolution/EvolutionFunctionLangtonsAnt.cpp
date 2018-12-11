@@ -1,5 +1,7 @@
 #include "cellular-automata/evolution/EvolutionFunctionLangtonsAnt.hpp"
 
+#include "cellular-automata/profiler.hpp"
+
 using namespace std;
 
 namespace CellularAutomata {
@@ -11,6 +13,8 @@ void EvolutionFunctionLangtonsAnt::operator()(shared_ptr<ElementMapper> mapper) 
 void EvolutionFunctionLangtonsAnt::operator()(const ArrayMapper & prev,
                                               ArrayMapper & next,
                                               const Index & index) const {
+    PROFILER_METHOD("evolution:ant");
+
     // White cell: [0] == false
     // Black cell: [0] == true
     // Direction:  [1] = {

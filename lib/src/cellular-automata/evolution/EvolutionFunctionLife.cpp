@@ -1,5 +1,7 @@
 #include "cellular-automata/evolution/EvolutionFunctionLife.hpp"
 
+#include "cellular-automata/profiler.hpp"
+
 using namespace std;
 
 namespace CellularAutomata {
@@ -14,6 +16,8 @@ void EvolutionFunctionLife::operator()(shared_ptr<ElementMapper> mapper) {
 void EvolutionFunctionLife::operator()(const ArrayMapper & prev,
                                        ArrayMapper & next,
                                        const Index & index) const {
+    PROFILER_METHOD("evolution:life");
+
     uint8_t numNeighbours = 0;
 
     bool alive = m_mapper->map<bool>(prev(index));

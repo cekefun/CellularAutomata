@@ -6,6 +6,8 @@
 #include "cellular-automata/storage/FlexibleArrayImpl.hpp"
 #include "cellular-automata/Simulator.hpp"
 
+#include "cellular-automata/profiler.hpp"
+
 #include <iostream>
 
 #include <unistd.h>
@@ -13,6 +15,8 @@
 using namespace CellularAutomata;
 
 void runSimulation1D(std::size_t elementSize, std::int64_t min, std::int64_t max, std::uint8_t rule) {
+    PROFILER_METHOD("main-test:1D");
+
     ElementsDefinition elementsDefinition { { { ElementsDefinition::Type::BOOL, 0 } } };
 
     auto data = std::make_shared<ArrayMapper1D>(elementSize, min, max);
@@ -32,6 +36,8 @@ void runSimulation1D(std::size_t elementSize, std::int64_t min, std::int64_t max
 }
 
 void runSimulationBlinker() {
+    PROFILER_METHOD("main-test:blinker");
+
     ElementsDefinition elementsDefinition { { { ElementsDefinition::Type::BOOL, 0 } } };
 
     auto data = std::make_shared<ArrayMapper2D>(1, 0, 0, 5, 5);
@@ -53,6 +59,8 @@ void runSimulationBlinker() {
 }
 
 void runSimulationPulsar() {
+    PROFILER_METHOD("main-test:pulsar");
+
     ElementsDefinition elementsDefinition { { { ElementsDefinition::Type::BOOL, 0 } } };
 
     auto data = std::make_shared<ArrayMapper2D>(1, 0, 0, 17, 17);
@@ -123,6 +131,8 @@ void runSimulationPulsar() {
 }
 
 void runSimulationLangtonsAnt() {
+    PROFILER_METHOD("main-test:ant");
+
     constexpr std::uint8_t size_bool = ElementsDefinition::type_size<ElementsDefinition::Type::BOOL>();
     constexpr std::uint8_t size_int8 = ElementsDefinition::type_size<ElementsDefinition::Type::INT8>();
 
@@ -132,16 +142,16 @@ void runSimulationLangtonsAnt() {
                                  { ElementsDefinition::Type::INT8, size_bool } // Ant
                              } };
 
-    auto data = std::make_shared<ArrayMapper2D>(size_bool + size_int8, 0, 0, 11, 11);
+    auto data = std::make_shared<ArrayMapper2D>(size_bool + size_int8, 0, 0, 37, 33);
     auto mapper = std::make_shared<ElementMapper>(def);
 
-    mapper->map<std::int8_t>((*data)(Index { 5, 5 }), 1) = 1; // Place the ant
+    mapper->map<std::int8_t>((*data)(Index { 11, 11 }), 1) = 1; // Place the ant
 
     Simulator sim(std::move(data),
                   std::move(mapper),
                   std::make_shared<EvolutionFunctionLangtonsAnt>());
 
-    for (unsigned int i = 0; i < 199; ++i) {
+    for (unsigned int i = 0; i < 4000; ++i) {
         sim.step();
     }
 
@@ -201,17 +211,58 @@ int main() {
     std::printf("sizeof(long long) = %td\n", sizeof(long long));
     std::printf("Page size: %ld\n", pageSize);
 
+    auto sectionVisitor = [](const profiler::Section & section) {
+        std::printf("%s: %.6f seconds\n", section.path().c_str(), static_cast<double>(section.time().count()) / 1000000000.0);
+    };
+
+    /*
+    {
+        PROFILER_RESET;
+        runSimulation1D(1, -32, 32, 30);
+        PROFILER_COLLECT(sectionVisitor);
+    }
+    std::printf("\n\n");
+    {
+        PROFILER_RESET;
+        runSimulation1D(1, -32, 32, 126);
+        PROFILER_COLLECT(sectionVisitor);
+    }
+    std::printf("\n\n");
+    {
+        PROFILER_RESET;
+        runSimulation1D(1, -32, 32, 255);
+        PROFILER_COLLECT(sectionVisitor);
+    }
+    std::printf("\n\n");
+    {
+        PROFILER_RESET;
+        runSimulationBlinker();
+        PROFILER_COLLECT(sectionVisitor);
+    }
+    std::printf("\n\n");
+    {
+        PROFILER_RESET;
+        runSimulationPulsar();
+        PROFILER_COLLECT(sectionVisitor);
+    }
+    std::printf("\n\n");
+    {
+        PROFILER_RESET;
+        runSimulationLangtonsAnt();
+        PROFILER_COLLECT(sectionVisitor);
+    }
+    //*/
+
+    //*
+    PROFILER_RESET;
     runSimulation1D(1, -32, 32, 30);
-    std::printf("\n\n");
     runSimulation1D(1, -32, 32, 126);
-    std::printf("\n\n");
     runSimulation1D(1, -32, 32, 255);
-    std::printf("\n\n");
     runSimulationBlinker();
-    std::printf("\n\n");
     runSimulationPulsar();
-    std::printf("\n\n");
     runSimulationLangtonsAnt();
+    PROFILER_COLLECT(sectionVisitor);
+    //*/
 
     // test();
 

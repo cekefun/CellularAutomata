@@ -1,5 +1,7 @@
 #include "cellular-automata/Simulator.hpp"
 
+#include "cellular-automata/profiler.hpp"
+
 #include <cstdio>
 #include <map>
 #include <sstream>
@@ -16,12 +18,33 @@ Simulator::Simulator(shared_ptr<ArrayMapper> data,
 }
 
 void Simulator::step() {
-    shared_ptr<ArrayMapper> copy = m_data->clone();
+    PROFILER_METHOD("simulator:step");
+
+    shared_ptr<ArrayMapper> copy;
+    {
+        PROFILER_BLOCK("clone");
+        copy = move(m_data->clone());
+    }
 
     const vector<Index> & indexes = m_data->indexes();
 
-    for (const auto & index : indexes) {
-        (*m_evolve)(*m_data, *copy, index);
+    {
+        PROFILER_BLOCK("evolution");
+        PROFILER_THREADS;
+//#pragma omp parallel
+        {
+
+            size_t size = indexes.size();
+
+//#pragma omp for
+            for (size_t i = 0; i < size; ++i) {
+                PROFILER_BLOCK("index");
+
+                const Index & index = indexes[i];
+
+                (*m_evolve)(*m_data, *copy, index);
+            }
+        }
     }
 
     m_oldStates.emplace_back(m_data);

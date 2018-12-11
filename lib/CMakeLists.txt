@@ -9,6 +9,7 @@ set(SOURCES
     src/cellular-automata/storage/FlexibleArray.cpp
     src/cellular-automata/game-of-life.cpp
     src/cellular-automata/Simulator.cpp
+    src/cellular-automata/profiler.cpp
     )
 
 add_library(libcellularautomata ${SOURCES})
