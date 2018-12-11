@@ -1,6 +1,8 @@
 #include "cellular-automata/Simulator.hpp"
 
 #include <cstdio>
+#include <map>
+#include <sstream>
 
 using namespace std;
 
@@ -29,15 +31,28 @@ void Simulator::step() {
 
 void Simulator::printResult() {
     // Temporary function that implements printing of life-like cells (dead or alive) for 1 dimensional arrays
-    // In the future, you would plug in another object that can output to any (within reason) format
+    // In the very near future, you would plug in another object that can output to any (within reason) format
 
     unsigned int i = 0;
 
     for (const auto & state : m_oldStates) {
         std::printf("State %3d: ", i++);
 
-        for (const auto & index : state->indexes()) {
-            std::printf("%s", m_mapper->map<bool>((*state)(index)) ? "o" : ".");
+        Index::Dimensionality dimensionality = state->getDimensionality();
+
+        if (dimensionality == Index::Dimensionality::ONE) {
+            for (const auto & index : state->indexes()) {
+                std::printf("%s", m_mapper->map<bool>((*state)(index)) ? "o" : ".");
+            }
+        } else if (dimensionality == Index::Dimensionality::TWO) {
+            std::map<int64_t, stringstream> lines;
+            for (const auto & index : state->indexes()) {
+                lines[index.y] << (m_mapper->map<bool>((*state)(index)) ? "o" : ".");
+            }
+
+            for (const auto & line : lines) {
+                std::printf("\n%3ld: %s", line.first, line.second.str().c_str());
+            }
         }
 
         std::printf("\n");
@@ -45,8 +60,21 @@ void Simulator::printResult() {
 
     std::printf("State %3d: ", i);
 
-    for (const auto & index : m_data->indexes()) {
-        std::printf("%s", m_mapper->map<bool>((*m_data)(index)) ? "o" : ".");
+    Index::Dimensionality dimensionality = m_data->getDimensionality();
+
+    if (dimensionality == Index::Dimensionality::ONE) {
+        for (const auto & index : m_data->indexes()) {
+            std::printf("%s", m_mapper->map<bool>((*m_data)(index)) ? "o" : ".");
+        }
+    } else if (dimensionality == Index::Dimensionality::TWO) {
+        std::map<int64_t, stringstream> lines;
+        for (const auto & index : m_data->indexes()) {
+            lines[index.y] << (m_mapper->map<bool>((*m_data)(index)) ? "o" : ".");
+        }
+
+        for (const auto & line : lines) {
+            std::printf("\n%3ld: %s", line.first, line.second.str().c_str());
+        }
     }
 
     std::printf("\n");

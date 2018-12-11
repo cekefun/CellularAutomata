@@ -10,13 +10,13 @@ namespace CellularAutomata {
 /**
  * Creates an array that stores <code>max - min</code> elements in the range <code>[min, max)</code>.
  */
-class ArrayMapper1D : public ArrayMapper {
+class ArrayMapper2D : public ArrayMapper {
 public:
-    ArrayMapper1D(std::size_t elementSize, std::int64_t min, std::int64_t max);
+    ArrayMapper2D(std::size_t elementSize, std::int64_t minX, std::int64_t minY, std::int64_t maxX, std::int64_t maxY);
 
-    ArrayMapper1D(const ArrayMapper1D & o);
+    ArrayMapper2D(const ArrayMapper2D & o);
 
-    ArrayMapper1D(ArrayMapper1D && o) noexcept;
+    ArrayMapper2D(ArrayMapper2D && o) noexcept;
 
     bool exists(const Index & index) const override;
 
@@ -28,15 +28,17 @@ public:
 
     const std::vector<Index> & indexes() const override;
 
-    inline Index::Dimensionality getDimensionality() const override { return Index::Dimensionality::ONE; }
+    inline Index::Dimensionality getDimensionality() const override { return Index::Dimensionality::TWO; }
 
     inline bool isInfinite() const override { return false; }
 
     inline const FlexibleArray & _backend() const { return m_array; }
 
 private:
-    std::int64_t m_min;
-    std::int64_t m_max;
+    std::int64_t m_minX;
+    std::int64_t m_minY;
+    std::int64_t m_maxX;
+    std::int64_t m_maxY;
     std::size_t m_elementSize;
     std::vector<Index> m_indexes;
     FlexibleArray m_array;

@@ -31,6 +31,10 @@ public:
     virtual std::shared_ptr<ArrayMapper> clone() const = 0;
 
     virtual const std::vector<Index> & indexes() const = 0;
+
+    virtual Index::Dimensionality getDimensionality() const = 0;
+
+    virtual bool isInfinite() const = 0;
 };
 
 }

@@ -4,6 +4,12 @@
 
 using namespace std;
 
+namespace {
+inline size_t map(int64_t min, int64_t, const CellularAutomata::Index & index) {
+    return static_cast<size_t>(index.x - min);
+}
+}
+
 namespace CellularAutomata {
 ArrayMapper1D::ArrayMapper1D(size_t elementSize, int64_t min, int64_t max)
     : m_min(min), m_max(max), m_elementSize(elementSize), m_indexes(), m_array(elementSize, static_cast<size_t>(max - min)) {
@@ -41,14 +47,14 @@ unsigned char * ArrayMapper1D::operator()(const Index & index) {
     if (index.dimensionality != Index::Dimensionality::ONE) {
         throw logic_error("Invalid index dimension");
     }
-    return m_array[static_cast<size_t>(index.x - m_min)];
+    return m_array[map(m_min, m_max, index)];
 }
 
 const unsigned char * ArrayMapper1D::operator()(const Index & index) const {
     if (index.dimensionality != Index::Dimensionality::ONE) {
         throw logic_error("Invalid index dimension");
     }
-    return m_array[static_cast<size_t>(index.x - m_min)];
+    return m_array[map(m_min, m_max, index)];
 }
 
 shared_ptr<ArrayMapper> ArrayMapper1D::clone() const {
