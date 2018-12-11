@@ -51,6 +51,75 @@ void runSimulationBlinker() {
     sim.printResult();
 }
 
+void runSimulationPulsar() {
+    ElementsDefinition elementsDefinition { { { ElementsDefinition::Type::BOOL, 0 } } };
+
+    auto data = std::make_shared<ArrayMapper2D>(1, 0, 0, 17, 17);
+    auto mapper = std::make_shared<ElementMapper>(elementsDefinition);
+
+    mapper->map<bool>((*data)(Index { 2, 4 })) = true;
+    mapper->map<bool>((*data)(Index { 2, 5 })) = true;
+    mapper->map<bool>((*data)(Index { 2, 6 })) = true;
+    mapper->map<bool>((*data)(Index { 4, 2 })) = true;
+    mapper->map<bool>((*data)(Index { 5, 2 })) = true;
+    mapper->map<bool>((*data)(Index { 6, 2 })) = true;
+    mapper->map<bool>((*data)(Index { 7, 4 })) = true;
+    mapper->map<bool>((*data)(Index { 7, 5 })) = true;
+    mapper->map<bool>((*data)(Index { 7, 6 })) = true;
+    mapper->map<bool>((*data)(Index { 4, 7 })) = true;
+    mapper->map<bool>((*data)(Index { 5, 7 })) = true;
+    mapper->map<bool>((*data)(Index { 6, 7 })) = true;
+    // Top right quadrant
+    mapper->map<bool>((*data)(Index { 2, 10 })) = true;
+    mapper->map<bool>((*data)(Index { 2, 11 })) = true;
+    mapper->map<bool>((*data)(Index { 2, 12 })) = true;
+    mapper->map<bool>((*data)(Index { 4, 14 })) = true;
+    mapper->map<bool>((*data)(Index { 5, 14 })) = true;
+    mapper->map<bool>((*data)(Index { 6, 14 })) = true;
+    mapper->map<bool>((*data)(Index { 7, 10 })) = true;
+    mapper->map<bool>((*data)(Index { 7, 11 })) = true;
+    mapper->map<bool>((*data)(Index { 7, 12 })) = true;
+    mapper->map<bool>((*data)(Index { 4, 9 })) = true;
+    mapper->map<bool>((*data)(Index { 5, 9 })) = true;
+    mapper->map<bool>((*data)(Index { 6, 9 })) = true;
+    // Bottom left quadrant
+    mapper->map<bool>((*data)(Index { 14, 4 })) = true;
+    mapper->map<bool>((*data)(Index { 14, 5 })) = true;
+    mapper->map<bool>((*data)(Index { 14, 6 })) = true;
+    mapper->map<bool>((*data)(Index { 10, 2 })) = true;
+    mapper->map<bool>((*data)(Index { 11, 2 })) = true;
+    mapper->map<bool>((*data)(Index { 12, 2 })) = true;
+    mapper->map<bool>((*data)(Index { 9, 4 })) = true;
+    mapper->map<bool>((*data)(Index { 9, 5 })) = true;
+    mapper->map<bool>((*data)(Index { 9, 6 })) = true;
+    mapper->map<bool>((*data)(Index { 10, 7 })) = true;
+    mapper->map<bool>((*data)(Index { 11, 7 })) = true;
+    mapper->map<bool>((*data)(Index { 12, 7 })) = true;
+    // Bottom right quadrant
+    mapper->map<bool>((*data)(Index { 14, 10 })) = true;
+    mapper->map<bool>((*data)(Index { 14, 11 })) = true;
+    mapper->map<bool>((*data)(Index { 14, 12 })) = true;
+    mapper->map<bool>((*data)(Index { 10, 14 })) = true;
+    mapper->map<bool>((*data)(Index { 11, 14 })) = true;
+    mapper->map<bool>((*data)(Index { 12, 14 })) = true;
+    mapper->map<bool>((*data)(Index { 9, 10 })) = true;
+    mapper->map<bool>((*data)(Index { 9, 11 })) = true;
+    mapper->map<bool>((*data)(Index { 9, 12 })) = true;
+    mapper->map<bool>((*data)(Index { 10, 9 })) = true;
+    mapper->map<bool>((*data)(Index { 11, 9 })) = true;
+    mapper->map<bool>((*data)(Index { 12, 9 })) = true;
+
+    Simulator sim(std::move(data),
+                  std::move(mapper),
+                  std::make_shared<EvolutionFunctionLife>(std::bitset<8> { 1 << 3 }, std::bitset<8> { 1 << 2 | 1 << 3 }));
+
+    for (unsigned int i = 0; i < 16; ++i) {
+        sim.step();
+    }
+
+    sim.printResult();
+}
+
 void test() {
     ArrayMapper1D data1(1, -5, 12);
     ArrayMapper1D data2(2, -5, 12);
@@ -109,6 +178,7 @@ int main() {
     runSimulation1D(1, -32, 32, 255);
 
     runSimulationBlinker();
+    runSimulationPulsar();
 
     // test();
 
