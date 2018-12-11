@@ -1,7 +1,3 @@
-#include <utility>
-
-#include <utility>
-
 #include "cellular-automata/evolution/EvolutionFunctionLangtonsAnt.hpp"
 
 using namespace std;

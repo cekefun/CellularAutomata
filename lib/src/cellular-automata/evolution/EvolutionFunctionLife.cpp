@@ -1,7 +1,3 @@
-#include <utility>
-
-#include <utility>
-
 #include "cellular-automata/evolution/EvolutionFunctionLife.hpp"
 
 using namespace std;
