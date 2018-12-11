@@ -13,6 +13,7 @@ public:
     explicit AlignedFlexibleArrayImpl(size_t size)
         : m_size(size),
           m_storage(new storage_type[calcSize(size)]) {
+        /*
         for (auto it = begin(); it != end(); ++it) {
             auto v = static_cast<unsigned char>(reinterpret_cast<size_t>(it) % 16);
             *it = v << 4 | static_cast<unsigned char>(0xAu);
@@ -21,6 +22,8 @@ public:
             auto v = static_cast<unsigned char>(reinterpret_cast<size_t>(it) % 16);
             *it = v << 4 | static_cast<unsigned char>(0xEu);
         }
+         */
+        std::fill(begin(), end(), 0);
     }
 
     AlignedFlexibleArrayImpl(const AlignedFlexibleArrayImpl & o)

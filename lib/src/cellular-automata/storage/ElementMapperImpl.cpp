@@ -18,7 +18,7 @@ ElementMapperImpl::ElementMapperImpl(ElementsDefinition definition)
 
 bool & ElementMapperImpl::as_bool(unsigned char * ptr, size_t elementIndex) {
     if (verify) {
-        if (elementIndex >= m_definition.size()) {
+        if (elementIndex >= m_definition.num_elements()) {
             throw logic_error("Invalid element access: invalid index");
         }
     }
@@ -34,9 +34,9 @@ bool & ElementMapperImpl::as_bool(unsigned char * ptr, size_t elementIndex) {
     return *reinterpret_cast<bool *>(ptr + def.second);
 }
 
-int64_t & ElementMapperImpl::as_int(unsigned char * ptr, size_t elementIndex) {
+int8_t & ElementMapperImpl::as_int8(unsigned char * ptr, size_t elementIndex) {
     if (verify) {
-        if (elementIndex >= m_definition.size()) {
+        if (elementIndex >= m_definition.num_elements()) {
             throw logic_error("Invalid element access: invalid index");
         }
     }
@@ -44,7 +44,61 @@ int64_t & ElementMapperImpl::as_int(unsigned char * ptr, size_t elementIndex) {
     auto def = m_definition[elementIndex];
 
     if (verify) {
-        if (def.first != Type::INT) {
+        if (def.first != Type::INT8) {
+            throw logic_error("Invalid element access: wrong type");
+        }
+    }
+
+    return *reinterpret_cast<int8_t *>(ptr + def.second);
+}
+
+int16_t & ElementMapperImpl::as_int16(unsigned char * ptr, size_t elementIndex) {
+    if (verify) {
+        if (elementIndex >= m_definition.num_elements()) {
+            throw logic_error("Invalid element access: invalid index");
+        }
+    }
+
+    auto def = m_definition[elementIndex];
+
+    if (verify) {
+        if (def.first != Type::INT16) {
+            throw logic_error("Invalid element access: wrong type");
+        }
+    }
+
+    return *reinterpret_cast<int16_t *>(ptr + def.second);
+}
+
+int32_t & ElementMapperImpl::as_int32(unsigned char * ptr, size_t elementIndex) {
+    if (verify) {
+        if (elementIndex >= m_definition.num_elements()) {
+            throw logic_error("Invalid element access: invalid index");
+        }
+    }
+
+    auto def = m_definition[elementIndex];
+
+    if (verify) {
+        if (def.first != Type::INT32) {
+            throw logic_error("Invalid element access: wrong type");
+        }
+    }
+
+    return *reinterpret_cast<int32_t *>(ptr + def.second);
+}
+
+int64_t & ElementMapperImpl::as_int64(unsigned char * ptr, size_t elementIndex) {
+    if (verify) {
+        if (elementIndex >= m_definition.num_elements()) {
+            throw logic_error("Invalid element access: invalid index");
+        }
+    }
+
+    auto def = m_definition[elementIndex];
+
+    if (verify) {
+        if (def.first != Type::INT64) {
             throw logic_error("Invalid element access: wrong type");
         }
     }
@@ -54,7 +108,7 @@ int64_t & ElementMapperImpl::as_int(unsigned char * ptr, size_t elementIndex) {
 
 double & ElementMapperImpl::as_real(unsigned char * ptr, size_t elementIndex) {
     if (verify) {
-        if (elementIndex >= m_definition.size()) {
+        if (elementIndex >= m_definition.num_elements()) {
             throw logic_error("Invalid element access: invalid index");
         }
     }

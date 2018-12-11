@@ -1,4 +1,5 @@
 set(SOURCES
+    src/cellular-automata/evolution/EvolutionFunctionLangtonsAnt.cpp
     src/cellular-automata/evolution/EvolutionFunctionLife.cpp
     src/cellular-automata/evolution/EvolutionFunctionRule.cpp
     src/cellular-automata/storage/ArrayMapper1D.cpp

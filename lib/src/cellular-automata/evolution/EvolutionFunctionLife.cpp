@@ -11,13 +11,13 @@ namespace CellularAutomata {
 EvolutionFunctionLife::EvolutionFunctionLife(bitset<8> born, bitset<8> survive)
     : m_born(born), m_survive(survive) {}
 
-void EvolutionFunctionLife::operator()(shared_ptr<CellularAutomata::ElementMapper> mapper) {
+void EvolutionFunctionLife::operator()(shared_ptr<ElementMapper> mapper) {
     m_mapper = mapper;
 }
 
-void EvolutionFunctionLife::operator()(const CellularAutomata::ArrayMapper & prev,
-                                       CellularAutomata::ArrayMapper & next,
-                                       const CellularAutomata::Index & index) const {
+void EvolutionFunctionLife::operator()(const ArrayMapper & prev,
+                                       ArrayMapper & next,
+                                       const Index & index) const {
     uint8_t numNeighbours = 0;
 
     bool alive = m_mapper->map<bool>(prev(index));

@@ -1,3 +1,4 @@
+#include "cellular-automata/evolution/EvolutionFunctionLangtonsAnt.hpp"
 #include "cellular-automata/evolution/EvolutionFunctionRule.hpp"
 #include "cellular-automata/evolution/EvolutionFunctionLife.hpp"
 #include "cellular-automata/storage/ArrayMapper1D.hpp"
@@ -42,7 +43,7 @@ void runSimulationBlinker() {
 
     Simulator sim(std::move(data),
                   std::move(mapper),
-                  std::make_shared<EvolutionFunctionLife>(std::bitset<8> { 1 << 3 }, std::bitset<8> { 1 << 2 | 1 << 3 }));
+                  std::make_shared<EvolutionFunctionLife>(std::bitset<8> { 0b1000 }, std::bitset<8> { 0b1100 }));
 
     for (unsigned int i = 0; i < 8; ++i) {
         sim.step();
@@ -57,6 +58,7 @@ void runSimulationPulsar() {
     auto data = std::make_shared<ArrayMapper2D>(1, 0, 0, 17, 17);
     auto mapper = std::make_shared<ElementMapper>(elementsDefinition);
 
+    // Top left quadrant
     mapper->map<bool>((*data)(Index { 2, 4 })) = true;
     mapper->map<bool>((*data)(Index { 2, 5 })) = true;
     mapper->map<bool>((*data)(Index { 2, 6 })) = true;
@@ -111,9 +113,35 @@ void runSimulationPulsar() {
 
     Simulator sim(std::move(data),
                   std::move(mapper),
-                  std::make_shared<EvolutionFunctionLife>(std::bitset<8> { 1 << 3 }, std::bitset<8> { 1 << 2 | 1 << 3 }));
+                  std::make_shared<EvolutionFunctionLife>(std::bitset<8> { 0b1000 }, std::bitset<8> { 0b1100 }));
 
     for (unsigned int i = 0; i < 16; ++i) {
+        sim.step();
+    }
+
+    sim.printResult();
+}
+
+void runSimulationLangtonsAnt() {
+    constexpr std::uint8_t size_bool = ElementsDefinition::type_size<ElementsDefinition::Type::BOOL>();
+    constexpr std::uint8_t size_int8 = ElementsDefinition::type_size<ElementsDefinition::Type::INT8>();
+
+
+    ElementsDefinition def { {
+                                 { ElementsDefinition::Type::BOOL, 0 }, // Color
+                                 { ElementsDefinition::Type::INT8, size_bool } // Ant
+                             } };
+
+    auto data = std::make_shared<ArrayMapper2D>(size_bool + size_int8, 0, 0, 11, 11);
+    auto mapper = std::make_shared<ElementMapper>(def);
+
+    mapper->map<std::int8_t>((*data)(Index { 5, 5 }), 1) = 1; // Place the ant
+
+    Simulator sim(std::move(data),
+                  std::move(mapper),
+                  std::make_shared<EvolutionFunctionLangtonsAnt>());
+
+    for (unsigned int i = 0; i < 199; ++i) {
         sim.step();
     }
 
@@ -174,11 +202,16 @@ int main() {
     std::printf("Page size: %ld\n", pageSize);
 
     runSimulation1D(1, -32, 32, 30);
+    std::printf("\n\n");
     runSimulation1D(1, -32, 32, 126);
+    std::printf("\n\n");
     runSimulation1D(1, -32, 32, 255);
-
+    std::printf("\n\n");
     runSimulationBlinker();
+    std::printf("\n\n");
     runSimulationPulsar();
+    std::printf("\n\n");
+    runSimulationLangtonsAnt();
 
     // test();
 
