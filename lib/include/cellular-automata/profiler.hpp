@@ -7,15 +7,18 @@
 #include <string>
 #include <mutex>
 
+#define PROFILER_HELPER_CONCAT(ARG_LHS, ARG_RHS) ARG_LHS ## ARG_RHS
+#define PROFILER_HELPER_CONCAT2(ARG_LHS, ARG_RHS) PROFILER_HELPER_CONCAT(ARG_LHS, ARG_RHS)
+
 #define PROFILER_RESET profiler::Profiler::get().reset()
 
 #define PROFILER_COLLECT(ARG_VARIABLE) profiler::Profiler::get().collect(ARG_VARIABLE)
 
 #define PROFILER_METHOD(ARG_NAME) profiler::SectionMethod _profilerMethod(ARG_NAME)
 
-#define PROFILER_BLOCK(ARG_NAME) profiler::SectionBlock _profilerBlock ## __LINE__(ARG_NAME)
+#define PROFILER_BLOCK(ARG_NAME) profiler::SectionBlock PROFILER_HELPER_CONCAT2(_profilerBlock, __LINE__)(ARG_NAME)
 
-#define PROFILER_THREADS profiler::Threads _profilerThread ## __LINE__
+#define PROFILER_THREADS profiler::Threads PROFILER_HELPER_CONCAT2(_profilerThread, __LINE__)
 
 namespace profiler {
 using clock_type = std::chrono::steady_clock;
