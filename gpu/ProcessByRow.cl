@@ -1,41 +1,54 @@
-void kernel ProcessMultiArray(global int* data, global int* target, int length){
+typedef {{}} myType;
+
+void kernel ProcessMultiArray(global myType* data, global myType* target, int length){
     //LeftMost
-    int nextTopLeft = 0;
-    int nextLeft = 0;
-    int nextBotLeft = 0;
-    int nextTop = 0;
+    myType nextTopLeft = 0;
+    myType nextLeft = 0;
+    myType nextBotLeft = 0;
+    myType nextTop = 0;
     if (get_global_id(0)!= 0){
         nextTop = data[(get_global_id(0)-1) * length];
     }
-    int nextSelf = data[(get_global_id(0)) * length];
-    int nextBot = 0;
+    myType nextSelf = data[(get_global_id(0)) * length];
+    myType nextBot = 0;
     if (get_global_id(0)!= get_global_size(0)-1){
         nextBot = data[(get_global_id(0)+1) * length];
     }
-    int neighbours = 0;
+    myType neighbours = 0;
     size_t id;
-    //all except the last one
+
+    int topWeight = {{}};
+    int topLeftWeight = {{}};
+    int topRightWeight = {{}};
+    int botWeight = {{}};
+    int botLeftWeight = {{}};
+    int botRightWeight = {{}};
+    int leftWeight = {{}};
+    int rightWeight = {{}};
+
+//all except the last one
     for(int i = 0; i < length - 1; i++){
         neighbours = 0;
         id = get_global_id(0) * length + i;
-        neighbours += nextTopLeft + nextLeft + nextBotLeft + nextTop + nextBot;
+        neighbours += topLeftWeight * nextTopLeft + leftWeight * nextLeft + botLeftWeight * nextBotLeft + topWeight * nextTop + botWeight * nextBot;
         nextTopLeft = nextTop;
         nextLeft = nextSelf;
         nextBotLeft = nextBot;
-        int self = nextSelf;
+        myType self = nextSelf;
 
+        //Right
         nextSelf = data[(get_global_id(0)) * length + i+1];
-        neighbours += nextSelf;
+        neighbours += rightWeight * nextSelf;
 
         if (get_global_id(0)!= 0){
             //TopRight
             nextTop = data[(get_global_id(0)-1) * length + i+1];
-            neighbours += nextTop;
+            neighbours += topRightWeight * nextTop;
         }
         if(get_global_id(0) != get_global_size(0)-1){
             //BotLeft
             nextBot = data[(get_global_id(0)+1) * length + i+1];
-            neighbours += nextBot;
+            neighbours += botRightWeight * nextBot;
         }
 
         if(self == 1 && neighbours < 2){
@@ -52,7 +65,7 @@ void kernel ProcessMultiArray(global int* data, global int* target, int length){
         }
     }
     //Rightmost
-    neighbours = nextTopLeft + nextLeft + nextBotLeft + nextTop + nextBot;
+    neighbours = topLeftWeight * nextTopLeft + leftWeight * nextLeft + botLeftWeight * nextBotLeft + topWeight * nextTop + botWeight * nextBot;
     id = get_global_id(0) * length + length -1;
     if(nextSelf == 1 && neighbours < 2){
         target[id] = 0;
@@ -66,4 +79,5 @@ void kernel ProcessMultiArray(global int* data, global int* target, int length){
     if(nextSelf == 0 && neighbours == 3){
         target[id] = 1;
     }
+
 }

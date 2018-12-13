@@ -8,6 +8,7 @@
 #endif
 #include <iostream>
 #include <fstream>
+#include "GameOfLife.h"
 cl::Program CreateProgram(const std::string& filename){
     std::vector<cl::Platform> all_platforms;
     cl::Platform::get(&all_platforms);
@@ -29,8 +30,11 @@ cl::Program CreateProgram(const std::string& filename){
     cl::Device default_device=all_devices[0];
     std::cout<< "Using device: "<<default_device.getInfo<CL_DEVICE_NAME>()<<"\n";
 
-    std::ifstream programFile(filename);
-    std::string src(std::istreambuf_iterator<char>(programFile), (std::istreambuf_iterator<char>()));
+    //std::ifstream programFile(filename);
+    //std::string src(std::istreambuf_iterator<char>(programFile), (std::istreambuf_iterator<char>()));
+
+    GameOfLife gol;
+    std::string src = gol.Compile();
 
     cl::Program::Sources sources(1,std::make_pair(src.c_str(),src.length()+1));
 
