@@ -35,6 +35,7 @@ cl::Program CreateProgram(const std::string& filename){
 
     GameOfLife gol;
     std::string src = gol.Compile();
+    std::cout<<src<<std::endl;
 
     cl::Program::Sources sources(1,std::make_pair(src.c_str(),src.length()+1));
 

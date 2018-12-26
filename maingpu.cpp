@@ -22,14 +22,12 @@ int main(){
     std::array<std::array<int, numCols>, numRows> arr =         {{{0,1,0},
                                                                  {0,1,0},
                                                                  {0,1,0}}};
-    std::array<std::array<int, numCols>, numRows> target =      {{{0,1,0},
-                                                                   {0,1,0},
-                                                                   {0,1,0}}};
+
 
     cl::Kernel kernel(program,"ProcessMultiArray");
 
     // Just allocate a target matrix
-    cl::Buffer bufTarget(context, CL_MEM_READ_WRITE|CL_MEM_HOST_READ_ONLY|CL_MEM_COPY_HOST_PTR, sizeof(int)*count,target.data());
+    cl::Buffer bufTarget(context, CL_MEM_READ_WRITE|CL_MEM_HOST_READ_ONLY, sizeof(int)*count);
     kernel.setArg(1, bufTarget);
 
     // Set the amount of rows
