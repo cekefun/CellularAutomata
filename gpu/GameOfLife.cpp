@@ -8,8 +8,10 @@
 
 std::string GameOfLife::Compile() const {
 
-    // This is the most naive way
+
     std::string result = "typedef "+type+" myType;\n";
+#ifdef NAIVE
+    // This is the most naive way
     result += "void kernel ProcessMultiArray(global myType* data, global myType* target){\n"
               "    size_t id = get_global_id(0)";
 
@@ -22,12 +24,12 @@ std::string GameOfLife::Compile() const {
     result +=";\n"
               "    myType neighbours = 0;";
 
-    if(weights[1][2]!= 0 && weights[1][1]!=0 && weights[1][3]!=0 && dimensions > 1){
+    if(weights[2][1]!= 0 && weights[1][1]!=0 && weights[3][1]!=0 && dimensions > 1){
         result += "if(get_global_id(0) !=0){\n";
         if(weights[1][2] != 0)
         {
             //2D Left
-            result +="      neighbours +="+std::to_string(weights[1][2])+"*(data[(get_global_id(0)-1) + get_global_id(1) * get_global_size(0)]);\n";
+            result +="      neighbours +="+std::to_string(weights[2][1])+"*(data[(get_global_id(0)-1) + get_global_id(1) * get_global_size(0)]);\n";
 
         }
         if(weights[1][1] != 0)
@@ -37,29 +39,29 @@ std::string GameOfLife::Compile() const {
                       "            neighbours += " +std::to_string(weights[1][1]) + "*(data[(get_global_id(0)-1) + (get_global_id(1)-1) * get_global_size(0)]);\n"
                       "        }\n";
         }
-        if(weights[1][3]!= 0)
+        if(weights[3][1]!= 0)
         {
             //2D BotLeft
             result +=  "        if (get_global_id(1) != get_global_size(1)-1){\n"
-                       "            neighbours += "+std::to_string(weights[1][3])+"*(data[(get_global_id(0)-1)+(get_global_id(1)+1) * get_global_size(0)]);\n"
+                       "            neighbours += "+std::to_string(weights[3][1])+"*(data[(get_global_id(0)-1)+(get_global_id(1)+1) * get_global_size(0)]);\n"
                        "        }\n";
         }
         result += "    }";
     }
 
-    if(weights[3][2]!= 0 && weights[3][1]!=0 && weights[3][3]!=0 && dimensions > 1){
+    if(weights[2][3]!= 0 && weights[1][3]!=0 && weights[3][3]!=0 && dimensions > 1){
         result += "if(get_global_id(0) != get_global_size(0)-1){\n";
-        if(weights[3][2] != 0)
+        if(weights[2][3] != 0)
         {
             //2D Right
-            result += "neighbours += "+std::to_string(weights[3][2])+"*(data[(get_global_id(0)+1) + get_global_id(1) * get_global_size(0)]);";
+            result += "neighbours += "+std::to_string(weights[2][3])+"*(data[(get_global_id(0)+1) + get_global_id(1) * get_global_size(0)]);";
 
         }
-        if(weights[3][1] != 0)
+        if(weights[1][3] != 0)
         {
             //2D TopRight
             result += "        if (get_global_id(1) != 0){\n"
-                      "            neighbours += " +std::to_string(weights[3][1]) + "*(data[(get_global_id(0)+1) +(get_global_id(1)-1) * get_global_size(0)]);\n"
+                      "            neighbours += " +std::to_string(weights[1][3]) + "*(data[(get_global_id(0)+1) +(get_global_id(1)-1) * get_global_size(0)]);\n"
                                                                                     "        }\n";
         }
         if(weights[3][3]!= 0)
@@ -72,16 +74,16 @@ std::string GameOfLife::Compile() const {
         result += "    }";
     }
 
-    if (weights[2][1] != 0){
+    if (weights[1][2] != 0){
         // Top
         result += "if(get_global_id(1) != 0){\n"
-                  "        neighbours += "+ std::to_string(weights[2][1]) +"*(data[get_global_id(0)+(get_global_id(1)-1) * get_global_size(0)]);\n"
+                  "        neighbours += "+ std::to_string(weights[1][2]) +"*(data[get_global_id(0)+(get_global_id(1)-1) * get_global_size(0)]);\n"
                   "    }";
     }
-    if (weights[2][3] != 0){
+    if (weights[3][2] != 0){
         //Bot
         result += "if(get_global_id(1) != get_global_size(1)-1){\n"
-                  "        neighbours += "+std::to_string(weights[2][3])+"*(data[get_global_id(0) + (get_global_id(1)+1) * get_global_size(0)]);\n"
+                  "        neighbours += "+std::to_string(weights[3][2])+"*(data[get_global_id(0) + (get_global_id(1)+1) * get_global_size(0)]);\n"
                   "    }";
 
     }
@@ -102,7 +104,82 @@ std::string GameOfLife::Compile() const {
               "        target[id] = 1;\n"
               "    }"
               "}";
+#endif
+#ifdef BY_ROW
+    result += "void kernel ProcessMultiArray(global myType* data, global myType* target, int length){\n"
+              "    myType nextLeft = 0;\n"
+              "    myType nextSelf = data[(get_global_id(0)) * length];\n";
+    if(dimensions >1){
+        result += "    myType nextTopLeft = 0;\n"
+                  "    myType nextBotLeft = 0;\n"
+                  "    myType nextTop = 0;\n"
+                  "    if (get_global_id(0)!= 0){\n"
+                  "        nextTop = data[(get_global_id(0)-1) * length];\n"
+                  "    }\n"
 
+                  "    myType nextBot = 0;\n"
+                  "    if (get_global_id(0)!= get_global_size(0)-1){\n"
+                  "        nextBot = data[(get_global_id(0)+1) * length];\n"
+                  "    }\n";
+    }
+    result += "    myType neighbours = 0;\n"
+              "    size_t id;\n"
+              "    for(int i = 0; i < length - 1; i++){\n"
+              "        id = get_global_id(0) * length + i;\n"
+              "        neighbours = "  + std::to_string(weights[1][1]) + "* nextTopLeft + "
+                                        + std::to_string(weights[2][1])+"* nextLeft + "
+                                        + std::to_string(weights[3][1])+"* nextBotLeft + "
+                                        + std::to_string(weights[1][2])+"* nextTop + "
+                                        + std::to_string(weights[3][1])+"* nextBot;\n"
+              "        nextTopLeft = nextTop;\n"
+              "        nextLeft = nextSelf;\n"
+              "        nextBotLeft = nextBot;\n"
+              "        myType self = nextSelf;\n"
+              "        nextSelf = data[(get_global_id(0)) * length + i+1];\n"
+              "        neighbours += "+std::to_string(weights[2][3])+"* nextSelf;\n"
+              "        if (get_global_id(0)!= 0){\n"
+              "            nextTop = data[(get_global_id(0)-1) * length + i+1];\n"
+              "            neighbours += "+std::to_string(weights[1][3])+"* nextTop;\n"
+              "        }\n"
+              "        if(get_global_id(0) != get_global_size(0)-1){\n"
+              "            nextBot = data[(get_global_id(0)+1) * length + i+1];\n"
+              "            neighbours += "+std::to_string(weights[3][3])+"* nextBot;\n"
+              "        }\n"
+              "\n"
+              "        if(self == 1 && neighbours < 2){\n"
+              "            target[id] = 0;\n"
+              "        }\n"
+              "        if(self == 1 && neighbours > 3){\n"
+              "            target[id] = 0;\n"
+              "        }\n"
+              "        if(self == 1 && neighbours >=2 && neighbours <= 3){\n"
+              "            target[id] = 1;\n"
+              "        }\n"
+              "        if(self == 0 && neighbours == 3){\n"
+              "            target[id] = 1;\n"
+              "        }\n"
+              "    }\n"
+              "    neighbours = "  + std::to_string(weights[1][1]) + "* nextTopLeft + "
+                                    + std::to_string(weights[2][1])+"* nextLeft + "
+                                    + std::to_string(weights[3][1])+"* nextBotLeft + "
+                                    + std::to_string(weights[1][2])+"* nextTop + "
+                                    + std::to_string(weights[3][1])+"* nextBot;\n"
+              "    id = get_global_id(0) * length + length -1;\n"
+              "    if(nextSelf == 1 && neighbours < 2){\n"
+              "        target[id] = 0;\n"
+              "    }\n"
+              "    if(nextSelf == 1 && neighbours > 3){\n"
+              "        target[id] = 0;\n"
+              "    }\n"
+              "    if(nextSelf == 1 && neighbours >=2 && neighbours <= 3){\n"
+              "        target[id] = 1;\n"
+              "    }\n"
+              "    if(nextSelf == 0 && neighbours == 3){\n"
+              "        target[id] = 1;\n"
+              "    }\n"
+              "\n"
+              "}";
+#endif
 
 
     /*

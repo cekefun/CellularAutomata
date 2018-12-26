@@ -17,20 +17,12 @@ void kernel ProcessMultiArray(global myType* data, global myType* target, int le
     myType neighbours = 0;
     size_t id;
 
-    int topWeight = {{}};
-    int topLeftWeight = {{}};
-    int topRightWeight = {{}};
-    int botWeight = {{}};
-    int botLeftWeight = {{}};
-    int botRightWeight = {{}};
-    int leftWeight = {{}};
-    int rightWeight = {{}};
 
 //all except the last one
     for(int i = 0; i < length - 1; i++){
         neighbours = 0;
         id = get_global_id(0) * length + i;
-        neighbours += topLeftWeight * nextTopLeft + leftWeight * nextLeft + botLeftWeight * nextBotLeft + topWeight * nextTop + botWeight * nextBot;
+        neighbours += nextTopLeft + nextLeft + nextBotLeft + nextTop + nextBot;
         nextTopLeft = nextTop;
         nextLeft = nextSelf;
         nextBotLeft = nextBot;
@@ -38,17 +30,17 @@ void kernel ProcessMultiArray(global myType* data, global myType* target, int le
 
         //Right
         nextSelf = data[(get_global_id(0)) * length + i+1];
-        neighbours += rightWeight * nextSelf;
+        neighbours += nextSelf;
 
         if (get_global_id(0)!= 0){
             //TopRight
             nextTop = data[(get_global_id(0)-1) * length + i+1];
-            neighbours += topRightWeight * nextTop;
+            neighbours += nextTop;
         }
         if(get_global_id(0) != get_global_size(0)-1){
             //BotLeft
             nextBot = data[(get_global_id(0)+1) * length + i+1];
-            neighbours += botRightWeight * nextBot;
+            neighbours += nextBot;
         }
 
         if(self == 1 && neighbours < 2){
@@ -65,7 +57,7 @@ void kernel ProcessMultiArray(global myType* data, global myType* target, int le
         }
     }
     //Rightmost
-    neighbours = topLeftWeight * nextTopLeft + leftWeight * nextLeft + botLeftWeight * nextBotLeft + topWeight * nextTop + botWeight * nextBot;
+    neighbours = nextTopLeft + nextLeft + nextBotLeft + nextTop + nextBot;
     id = get_global_id(0) * length + length -1;
     if(nextSelf == 1 && neighbours < 2){
         target[id] = 0;

@@ -29,9 +29,10 @@ int main(){
     // Just allocate a target matrix
     cl::Buffer bufTarget(context, CL_MEM_READ_WRITE|CL_MEM_HOST_READ_ONLY, sizeof(int)*count);
     kernel.setArg(1, bufTarget);
-
-    // Set the amount of rows
-    //kernel.setArg(2,numRows);
+#ifdef BY_ROW
+    //Set the amount of columns
+    kernel.setArg(2,numCols);
+#endif
 
     for(int i= 0; i< 3; i++){
         // Load in current matrix
@@ -41,8 +42,12 @@ int main(){
 
 
         cl::CommandQueue queue(context,device);
+#ifdef NAIVE
         queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(numRows, numCols));
-        //queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(numRows));
+#endif
+#ifdef BY_ROW
+        queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(numRows));
+#endif
 
         queue.enqueueReadBuffer(bufTarget,1002,0, sizeof(int)*count,arr.data());
 
