@@ -161,59 +161,145 @@ std::string GameOfLife::Compile() const {
               "    size_t id;\n"
               "    for(int i = 0; i < length - 1; i++){\n"
               "        id = get_global_id(0) * length + i;\n"
-              "        neighbours = "  + std::to_string(weights[1][1]) + "* nextTopLeft + "
-                                        + std::to_string(weights[2][1])+"* nextLeft + "
-                                        + std::to_string(weights[3][1])+"* nextBotLeft + "
-                                        + std::to_string(weights[1][2])+"* nextTop + "
-                                        + std::to_string(weights[3][1])+"* nextBot;\n"
-              "        nextTopLeft = nextTop;\n"
+              "        neighbours = ";
+
+    if(weights [1][1] != 0 || weights[2][1] != 0 || weights[3][1] != 0 || weights[1][2] != 0 || weights[3][2] != 0) {
+        if (weights[1][1] != 0) {
+            if (weights[1][1] != 1) {
+                result += std::to_string(weights[1][1]) + "*";
+            }
+            result += " nextTopLeft +";
+        }
+        if (weights[2][1] != 0) {
+            if (weights[2][1] != 1) {
+                result += std::to_string(weights[2][1]) + "*";
+            }
+            result += " nextLeft +";
+        }
+        if (weights[3][1] != 0) {
+            if (weights[3][1] != 1) {
+                result += std::to_string(weights[3][1]) + "*";
+            }
+            result += " nextBotLeft +";
+        }
+        if (weights[1][2] != 0) {
+            if (weights[1][2] != 1) {
+                result += std::to_string(weights[1][2]) + "*";
+            }
+            result += " nextTop +";
+        }
+        if (weights[3][2] != 0) {
+            if (weights[3][2] != 1) {
+                result += std::to_string(weights[3][2]) + "*";
+            }
+            result += " nextBot +";
+        }
+        result.pop_back();
+        result += ";";
+    } else{
+        result += "0;";
+    }
+
+    result += "        nextTopLeft = nextTop;\n"
               "        nextLeft = nextSelf;\n"
               "        nextBotLeft = nextBot;\n"
               "        myType self = nextSelf;\n"
-              "        nextSelf = data[(get_global_id(0)) * length + i+1];\n"
-              "        neighbours += "+std::to_string(weights[2][3])+"* nextSelf;\n"
-              "        if (get_global_id(0)!= 0){\n"
-              "            nextTop = data[(get_global_id(0)-1) * length + i+1];\n"
-              "            neighbours += "+std::to_string(weights[1][3])+"* nextTop;\n"
-              "        }\n"
-              "        if(get_global_id(0) != get_global_size(0)-1){\n"
-              "            nextBot = data[(get_global_id(0)+1) * length + i+1];\n"
-              "            neighbours += "+std::to_string(weights[3][3])+"* nextBot;\n"
-              "        }\n"
-              "\n"
-              "        if(self == 1 && neighbours < 2){\n"
-              "            target[id] = 0;\n"
-              "        }\n"
-              "        if(self == 1 && neighbours > 3){\n"
-              "            target[id] = 0;\n"
-              "        }\n"
-              "        if(self == 1 && neighbours >=2 && neighbours <= 3){\n"
-              "            target[id] = 1;\n"
-              "        }\n"
-              "        if(self == 0 && neighbours == 3){\n"
-              "            target[id] = 1;\n"
-              "        }\n"
-              "    }\n"
-              "    neighbours = "  + std::to_string(weights[1][1]) + "* nextTopLeft + "
-                                    + std::to_string(weights[2][1])+"* nextLeft + "
-                                    + std::to_string(weights[3][1])+"* nextBotLeft + "
-                                    + std::to_string(weights[1][2])+"* nextTop + "
-                                    + std::to_string(weights[3][1])+"* nextBot;\n"
-              "    id = get_global_id(0) * length + length -1;\n"
-              "    if(nextSelf == 1 && neighbours < 2){\n"
-              "        target[id] = 0;\n"
-              "    }\n"
-              "    if(nextSelf == 1 && neighbours > 3){\n"
-              "        target[id] = 0;\n"
-              "    }\n"
-              "    if(nextSelf == 1 && neighbours >=2 && neighbours <= 3){\n"
-              "        target[id] = 1;\n"
-              "    }\n"
-              "    if(nextSelf == 0 && neighbours == 3){\n"
-              "        target[id] = 1;\n"
-              "    }\n"
-              "\n"
-              "}";
+              "        nextSelf = data[(get_global_id(0)) * length + i+1];\n";
+    if(weights[2][3] != 0){
+        result += "        neighbours += ";
+        if(weights[2][3] != 1){
+            result += std::to_string(weights[2][3])+"*";
+        }
+        result += " nextSelf;\n";
+    }
+    result += "        if (get_global_id(0)!= 0){\n"
+    "            nextTop = data[(get_global_id(0)-1) * length + i+1];\n";
+    if(weights[1][3] != 0){
+        result += "neighbours += ";
+        if(weights[1][3] != 1){
+            result += std::to_string(weights[1][3])+"*";
+        }
+        result += " nextTop;\n";
+    }
+    result += "        }\n"
+    "        if(get_global_id(0) != get_global_size(0)-1){\n"
+    "            nextBot = data[(get_global_id(0)+1) * length + i+1];\n";
+
+    if(weights[3][3]!= 0){
+        result += "neighbours += ";
+        if(weights[3][3]!= 1){
+            result +=std::to_string(weights[3][3])+"*";
+        }
+        result += " nextBot;\n";
+    }
+
+    result += "        }\n"
+    "\n"
+    "        if(self == 1 && neighbours < 2){\n"
+    "            target[id] = 0;\n"
+    "        }\n"
+    "        if(self == 1 && neighbours > 3){\n"
+    "            target[id] = 0;\n"
+    "        }\n"
+    "        if(self == 1 && neighbours >=2 && neighbours <= 3){\n"
+    "            target[id] = 1;\n"
+    "        }\n"
+    "        if(self == 0 && neighbours == 3){\n"
+    "            target[id] = 1;\n"
+    "        }\n"
+    "    }\n"
+    "    neighbours = ";
+    if(weights [1][1] != 0 || weights[2][1] != 0 || weights[3][1] != 0 || weights[1][2] != 0 || weights[3][2] != 0) {
+        if (weights[1][1] != 0) {
+            if (weights[1][1] != 1) {
+                result += std::to_string(weights[1][1]) + "*";
+            }
+            result += " nextTopLeft +";
+        }
+        if (weights[2][1] != 0) {
+            if (weights[2][1] != 1) {
+                result += std::to_string(weights[2][1]) + "*";
+            }
+            result += " nextLeft +";
+        }
+        if (weights[3][1] != 0) {
+            if (weights[3][1] != 1) {
+                result += std::to_string(weights[3][1]) + "*";
+            }
+            result += " nextBotLeft +";
+        }
+        if (weights[1][2] != 0) {
+            if (weights[1][2] != 1) {
+                result += std::to_string(weights[1][2]) + "*";
+            }
+            result += " nextTop +";
+        }
+        if (weights[3][2] != 0) {
+            if (weights[3][2] != 1) {
+                result += std::to_string(weights[3][2]) + "*";
+            }
+            result += " nextBot +";
+        }
+        result.pop_back();
+        result += ";";
+    } else{
+        result += "0;";
+    }
+    result +="    id = get_global_id(0) * length + length -1;\n"
+      "    if(nextSelf == 1 && neighbours < 2){\n"
+      "        target[id] = 0;\n"
+      "    }\n"
+      "    if(nextSelf == 1 && neighbours > 3){\n"
+      "        target[id] = 0;\n"
+      "    }\n"
+      "    if(nextSelf == 1 && neighbours >=2 && neighbours <= 3){\n"
+      "        target[id] = 1;\n"
+      "    }\n"
+      "    if(nextSelf == 0 && neighbours == 3){\n"
+      "        target[id] = 1;\n"
+      "    }\n"
+      "\n"
+      "}";
 #endif
 
 
