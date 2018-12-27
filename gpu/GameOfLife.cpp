@@ -29,21 +29,36 @@ std::string GameOfLife::Compile() const {
         if(weights[1][2] != 0)
         {
             //2D Left
-            result +="      neighbours +="+std::to_string(weights[2][1])+"*(data[(get_global_id(0)-1) + get_global_id(1) * get_global_size(0)]);\n";
+            result +="      neighbours +=";
+            if(weights[2][1]!= 1)
+            {
+                result += std::to_string(weights[2][1])+"*";
+            }
+
+            result += "(data[(get_global_id(0)-1) + get_global_id(1) * get_global_size(0)]);\n";
 
         }
         if(weights[1][1] != 0)
         {
             //2D TopLeft
             result += "        if (get_global_id(1) != 0){\n"
-                      "            neighbours += " +std::to_string(weights[1][1]) + "*(data[(get_global_id(0)-1) + (get_global_id(1)-1) * get_global_size(0)]);\n"
+                      "            neighbours += ";
+            if(weights[1][1] != 0) {
+                result += std::to_string(weights[1][1]) + "*";
+            }
+            result += "(data[(get_global_id(0)-1) + (get_global_id(1)-1) * get_global_size(0)]);\n"
+
                       "        }\n";
         }
         if(weights[3][1]!= 0)
         {
             //2D BotLeft
             result +=  "        if (get_global_id(1) != get_global_size(1)-1){\n"
-                       "            neighbours += "+std::to_string(weights[3][1])+"*(data[(get_global_id(0)-1)+(get_global_id(1)+1) * get_global_size(0)]);\n"
+                       "            neighbours += ";
+            if(weights[3][1]!= 1){
+                result+=std::to_string(weights[3][1])+"*";
+            }
+            result += "(data[(get_global_id(0)-1)+(get_global_id(1)+1) * get_global_size(0)]);\n"
                        "        }\n";
         }
         result += "    }";
@@ -54,21 +69,33 @@ std::string GameOfLife::Compile() const {
         if(weights[2][3] != 0)
         {
             //2D Right
-            result += "neighbours += "+std::to_string(weights[2][3])+"*(data[(get_global_id(0)+1) + get_global_id(1) * get_global_size(0)]);";
+            result += "neighbours += ";
+            if(weights[2][3] != 1){
+                result+=std::to_string(weights[2][3])+"*";
+            }
+            result += "(data[(get_global_id(0)+1) + get_global_id(1) * get_global_size(0)]);";
 
         }
         if(weights[1][3] != 0)
         {
             //2D TopRight
             result += "        if (get_global_id(1) != 0){\n"
-                      "            neighbours += " +std::to_string(weights[1][3]) + "*(data[(get_global_id(0)+1) +(get_global_id(1)-1) * get_global_size(0)]);\n"
+                      "            neighbours += ";
+            if(weights[1][3]){
+                result +=std::to_string(weights[1][3]) + "*";
+            }
+            result += "(data[(get_global_id(0)+1) +(get_global_id(1)-1) * get_global_size(0)]);\n"
                                                                                     "        }\n";
         }
         if(weights[3][3]!= 0)
         {
             // 2D BotRight
             result +=  "        if (get_global_id(1) != get_global_size(1)-1){\n"
-                       "            neighbours += "+std::to_string(weights[3][3])+"*(data[(get_global_id(0)+1)+(get_global_id(1)+1) * get_global_size(0)]);\n"
+                       "            neighbours += ";
+            if(weights[3][3]){
+                result += std::to_string(weights[3][3])+"*";
+            }
+            result += "(data[(get_global_id(0)+1)+(get_global_id(1)+1) * get_global_size(0)]);\n"
                                                                                   "        }\n";
         }
         result += "    }";
@@ -77,13 +104,21 @@ std::string GameOfLife::Compile() const {
     if (weights[1][2] != 0){
         // Top
         result += "if(get_global_id(1) != 0){\n"
-                  "        neighbours += "+ std::to_string(weights[1][2]) +"*(data[get_global_id(0)+(get_global_id(1)-1) * get_global_size(0)]);\n"
+                  "        neighbours += ";
+        if(weights[1][2]!= 1){
+            result += std::to_string(weights[1][2]) +"*";
+        }
+        result += "(data[get_global_id(0)+(get_global_id(1)-1) * get_global_size(0)]);\n"
                   "    }";
     }
     if (weights[3][2] != 0){
         //Bot
         result += "if(get_global_id(1) != get_global_size(1)-1){\n"
-                  "        neighbours += "+std::to_string(weights[3][2])+"*(data[get_global_id(0) + (get_global_id(1)+1) * get_global_size(0)]);\n"
+                  "        neighbours += ";
+        if(weights[3][2] != 1){
+            result += std::to_string(weights[3][2])+"*";
+        }
+        result += "(data[get_global_id(0) + (get_global_id(1)+1) * get_global_size(0)]);\n"
                   "    }";
 
     }
