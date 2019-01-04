@@ -51,7 +51,7 @@ find_package(OpenCL)
 add_subdirectory(lib)
 
 if(${OpenCL_FOUND})
-    add_compile_definitions(BY_ROW)
+    add_compile_definitions(NAIVE)
     add_subdirectory(gpu)
     include_directories(${OpenCL_INCLUDE_DIRS})
     link_directories(${OpenCL_LIBRARY})
