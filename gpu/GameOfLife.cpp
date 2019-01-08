@@ -271,19 +271,14 @@ std::string GameOfLife::Compile() const {
     }
 
     result += "myType state = data[id];\n"
-              "\n"
-              "    if(state == 1 && neighbours < 2){\n"
+              "\n";
+    result += "    if(state == 1 && (neighbours < "+std::to_string(minSurvive)+" || neighbours >"+std::to_string(maxSurvive)+")){\n"
               "        target[id] = 0;\n"
               "    }\n"
-              "    if(state == 1 && neighbours > 3){\n"
-              "        target[id] = 0;\n"
-              "    }\n"
-              "    if(state == 1 && neighbours >=2 && neighbours <= 3){\n"
+
+              "    else if(state == 0 && neighbours >= "+std::to_string(minBorn)+" && neighbours <= "+std::to_string(maxBorn)+"){\n"
               "        target[id] = 1;\n"
-              "    }\n"
-              "    if(state == 0 && neighbours == 3){\n"
-              "        target[id] = 1;\n"
-              "    }"
+              "    } else{target[id] = data[id];}"
               "}";
 #endif
 #ifdef BY_ROW
@@ -601,22 +596,15 @@ std::string GameOfLife::Compile() const {
         }
     }
 
-    result += "        }\n"
-    "\n"
-    "        if(self == 1 && neighbours < 2){\n"
-    "            target[id] = 0;\n"
-    "        }\n"
-    "        if(self == 1 && neighbours > 3){\n"
-    "            target[id] = 0;\n"
-    "        }\n"
-    "        if(self == 1 && neighbours >=2 && neighbours <= 3){\n"
-    "            target[id] = 1;\n"
-    "        }\n"
-    "        if(self == 0 && neighbours == 3){\n"
-    "            target[id] = 1;\n"
-    "        }\n"
-    "    }\n"
-    "    neighbours = ";
+    result += "        }\n";
+    result += "    if(self == 1 && (neighbours < "+std::to_string(minSurvive)+" || neighbours >"+std::to_string(maxSurvive)+")){\n"
+              "        target[id] = 0;\n"
+              "    }\n"
+              "    else if(self == 0 && neighbours >= "+std::to_string(minBorn)+" && neighbours <= "+std::to_string(maxBorn)+"){\n"
+              "        target[id] = 1;\n"
+              "    } else{target[id] = data[id];}";
+    result += "    }\n"
+              "    neighbours = ";
 
     if(weights[0][0] != 0|| weights[0][1] != 0 || weights[0][2]!= 0 || weights[0][3]!=0 ||
        weights[1][0] != 0|| weights[1][1] != 0 || weights[1][2]!= 0 || weights[1][3]!=0 ||
@@ -742,20 +730,14 @@ std::string GameOfLife::Compile() const {
     } else{
         result += "0;";
     }
-    result +="    id = get_global_id(0) * length + length -2;\n"
-      "    if(nextSelf == 1 && neighbours < 2){\n"
-      "        target[id] = 0;\n"
-      "    }\n"
-      "    if(nextSelf == 1 && neighbours > 3){\n"
-      "        target[id] = 0;\n"
-      "    }\n"
-      "    if(nextSelf == 1 && neighbours >=2 && neighbours <= 3){\n"
-      "        target[id] = 1;\n"
-      "    }\n"
-      "    if(nextSelf == 0 && neighbours == 3){\n"
-      "        target[id] = 1;\n"
-      "    }\n"
-             "    neighbours = ";
+    result +="    id = get_global_id(0) * length + length -2;\n";
+    result +=  "    if(nextSelf == 1 && (neighbours < "+std::to_string(minSurvive)+" || neighbours >"+std::to_string(maxSurvive)+")){\n"
+               "        target[id] = 0;\n"
+               "    }\n"
+               "    else if(nextSelf == 0 && neighbours >= "+std::to_string(minBorn)+" && neighbours <= "+std::to_string(maxBorn)+"){\n"
+               "        target[id] = 1;\n"
+               "    } else{target[id] = data[id];}";
+    result += "    neighbours = ";
 
     if(weights[0][0] != 0|| weights[0][1] != 0 || weights[0][2]!= 0 ||
        weights[1][0] != 0|| weights[1][1] != 0 || weights[1][2]!= 0 ||
@@ -853,18 +835,12 @@ std::string GameOfLife::Compile() const {
         result += "0;";
     }
     result +="    id = get_global_id(0) * length + length -1;\n"
-             "    if(nextRight == 1 && neighbours < 2){\n"
+             "    if(nextRight == 1 && (neighbours < "+std::to_string(minSurvive)+" || neighbours >"+std::to_string(maxSurvive)+")){\n"
              "        target[id] = 0;\n"
              "    }\n"
-             "    if(nextRight == 1 && neighbours > 3){\n"
-             "        target[id] = 0;\n"
-             "    }\n"
-             "    if(nextRight == 1 && neighbours >=2 && neighbours <= 3){\n"
+             "    else if(nextRight == 0 && neighbours >= "+std::to_string(minBorn)+" && neighbours <= "+std::to_string(maxBorn)+"){\n"
              "        target[id] = 1;\n"
-             "    }\n"
-             "    if(nextRight == 0 && neighbours == 3){\n"
-             "        target[id] = 1;\n"
-             "    }\n"
+             "    } else{target[id] = data[id];}"
       "}";
 #endif
     return result;
