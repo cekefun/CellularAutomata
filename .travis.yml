@@ -55,4 +55,5 @@ script:
   - cmake -DAF_BUILD_OPENCL=ON CMakeLists.txt
   - make all
   - make test
+  - ./OpenCLTest.exe
 
