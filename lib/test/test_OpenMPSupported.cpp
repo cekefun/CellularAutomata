@@ -13,6 +13,8 @@ TEST(OpenMP, Supported) {
 
 #pragma omp parallel reduction(+:numThreads)
     {
+        EXPECT_TRUE(omp_in_parallel());
+
         ++numThreads;
 
 #pragma omp critical
@@ -20,8 +22,6 @@ TEST(OpenMP, Supported) {
             ++numThreads2;
         }
     }
-
-    EXPECT_GT(numThreads, 1);
 
     EXPECT_EQ(omp_get_max_threads(), numThreads);
     EXPECT_EQ(omp_get_max_threads(), numThreads2);
