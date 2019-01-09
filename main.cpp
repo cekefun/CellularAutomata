@@ -8,14 +8,17 @@
 
 #include "cellular-automata/profiler.hpp"
 
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 
+#include <omp.h>
 #include <unistd.h>
 
 using namespace CellularAutomata;
 
 void runSimulation1D(std::size_t elementSize, std::int64_t min, std::int64_t max, std::uint8_t rule) {
-    PROFILER_METHOD("main-test:1D");
+    PROFILER_BLOCK("main-test:1D", omp_get_thread_num());
 
     ElementsDefinition elementsDefinition { { { ElementsDefinition::Type::BOOL, 0 } } };
 
@@ -32,11 +35,11 @@ void runSimulation1D(std::size_t elementSize, std::int64_t min, std::int64_t max
         sim.step();
     }
 
-    sim.printResult();
+//    sim.printResult();
 }
 
 void runSimulationBlinker() {
-    PROFILER_METHOD("main-test:blinker");
+    PROFILER_BLOCK("main-test:blinker", omp_get_thread_num());
 
     ElementsDefinition elementsDefinition { { { ElementsDefinition::Type::BOOL, 0 } } };
 
@@ -55,11 +58,11 @@ void runSimulationBlinker() {
         sim.step();
     }
 
-    sim.printResult();
+//    sim.printResult();
 }
 
 void runSimulationPulsar() {
-    PROFILER_METHOD("main-test:pulsar");
+    PROFILER_BLOCK("main-test:pulsar", omp_get_thread_num());
 
     ElementsDefinition elementsDefinition { { { ElementsDefinition::Type::BOOL, 0 } } };
 
@@ -127,11 +130,11 @@ void runSimulationPulsar() {
         sim.step();
     }
 
-    sim.printResult();
+//    sim.printResult();
 }
 
 void runSimulationLangtonsAnt() {
-    PROFILER_METHOD("main-test:ant");
+    PROFILER_BLOCK("main-test:ant", omp_get_thread_num());
 
     constexpr std::uint8_t size_bool = ElementsDefinition::type_size<ElementsDefinition::Type::BOOL>();
     constexpr std::uint8_t size_int8 = ElementsDefinition::type_size<ElementsDefinition::Type::INT8>();
@@ -151,11 +154,11 @@ void runSimulationLangtonsAnt() {
                   std::move(mapper),
                   std::make_shared<EvolutionFunctionLangtonsAnt>());
 
-    for (unsigned int i = 0; i < 4000; ++i) {
+    for (unsigned int i = 0; i < 40000; ++i) {
         sim.step();
     }
 
-    sim.printResult();
+    // sim.printResult();
 }
 
 void test() {
@@ -205,15 +208,77 @@ void test() {
     }
 }
 
+class SectionVisitor {
+private:
+    static std::string durationToString(profiler::duration_type time) {
+        using namespace std::chrono;
+        using days = duration<std::uint32_t, std::ratio<86400>>;
+        using float_seconds = std::chrono::duration<double>;
+
+        days timeDays(duration_cast<days>(time));
+        time -= duration_cast<profiler::duration_type>(timeDays);
+
+        hours timeHours(duration_cast<hours>(time));
+        time -= duration_cast<profiler::duration_type>(timeHours);
+
+        minutes timeMinutes(duration_cast<minutes>(time));
+        time -= duration_cast<profiler::duration_type>(timeMinutes);
+
+        float_seconds floatingSeconds = duration_cast<float_seconds>(time);
+
+        std::stringstream ss;
+
+        if (timeDays.count() == 1) {
+            ss << "1 day, ";
+        } else if (timeDays.count() > 1) {
+            ss << timeDays.count() << " days, ";
+        }
+        if (timeHours.count() == 1) {
+            ss << "1 hour, ";
+        } else if (timeHours.count() > 1) {
+            ss << timeHours.count() << " hours, ";
+        }
+        if (timeMinutes.count() == 1) {
+            ss << "1 minute, ";
+        } else if (timeMinutes.count() > 1) {
+            ss << timeMinutes.count() << " minutes, ";
+        }
+        if (std::abs(floatingSeconds.count() - 1.0) < 0.00005) {
+            ss << "1 second";
+        } else {
+            ss.setf(std::ios::fixed, std::ios::floatfield);
+            ss.precision(4);
+            ss << floatingSeconds.count() << " seconds";
+        }
+
+        return ss.str();
+    }
+
+public:
+    void operator()(const profiler::Section & section) {
+        profiler::duration_type totalDuration = section.duration();
+        std::size_t numCalls = section.num_calls();
+
+        std::string durationString = durationToString(totalDuration);
+        std::string durationAverageString = durationToString(totalDuration / section.num_threads());
+
+        std::fprintf(stderr, "%-20s: %8ld calls spending %s distributed over %ld threads (average %s per thread)\n",
+                     section.name().c_str(),
+                     numCalls,
+                     durationString.c_str(),
+                     section.num_threads(),
+                     durationAverageString.c_str()
+        );
+    }
+};
+
 int main() {
-    long pageSize = sysconf(_SC_PAGESIZE);
+    //long pageSize = sysconf(_SC_PAGESIZE);
 
-    std::printf("sizeof(long long) = %td\n", sizeof(long long));
-    std::printf("Page size: %ld\n", pageSize);
+    //std::printf("sizeof(long long) = %td\n", sizeof(long long));
+    //std::printf("Page size: %ld\n", pageSize);
 
-    auto sectionVisitor = [](const profiler::Section & section) {
-        std::printf("%s: %.6f seconds\n", section.path().c_str(), static_cast<double>(section.time().count()) / 1000000000.0);
-    };
+    SectionVisitor sectionVisitor;
 
     /*
     {
@@ -253,18 +318,21 @@ int main() {
     }
     //*/
 
-    //*
-    PROFILER_RESET;
+    omp_set_num_threads(omp_get_max_threads());
+
+    profiler::Profiler & profiler = profiler::Profiler::get();
+    profiler.reset();
+    profiler.setMaxThreads(static_cast<std::size_t>(omp_get_max_threads()));
+    profiler.setMode(true);
+
     runSimulation1D(1, -32, 32, 30);
     runSimulation1D(1, -32, 32, 126);
     runSimulation1D(1, -32, 32, 255);
     runSimulationBlinker();
     runSimulationPulsar();
     runSimulationLangtonsAnt();
-    PROFILER_COLLECT(sectionVisitor);
-    //*/
 
-    // test();
+    profiler.collect(sectionVisitor);
 
     return 0;
 }

@@ -2,6 +2,8 @@
 
 #include "cellular-automata/profiler.hpp"
 
+#include <omp.h>
+
 using namespace std;
 
 namespace CellularAutomata {
@@ -16,7 +18,7 @@ void EvolutionFunctionLife::operator()(shared_ptr<ElementMapper> mapper) {
 void EvolutionFunctionLife::operator()(const ArrayMapper & prev,
                                        ArrayMapper & next,
                                        const Index & index) const {
-    PROFILER_METHOD("evolution:life");
+    PROFILER_BLOCK("evolution:life", omp_get_thread_num());
 
     uint8_t numNeighbours = 0;
 

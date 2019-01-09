@@ -2,6 +2,8 @@
 
 #include "cellular-automata/profiler.hpp"
 
+#include <omp.h>
+
 using namespace std;
 
 namespace CellularAutomata {
@@ -13,7 +15,7 @@ void EvolutionFunctionLangtonsAnt::operator()(shared_ptr<ElementMapper> mapper) 
 void EvolutionFunctionLangtonsAnt::operator()(const ArrayMapper & prev,
                                               ArrayMapper & next,
                                               const Index & index) const {
-    PROFILER_METHOD("evolution:ant");
+    PROFILER_BLOCK("evolution:ant", omp_get_thread_num());
 
     // White cell: [0] == false
     // Black cell: [0] == true

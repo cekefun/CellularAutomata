@@ -4,26 +4,34 @@
 #include <chrono>
 #include <functional>
 #include <list>
-#include <string>
+#include <map>
+#include <memory>
 #include <mutex>
+#include <string>
+#include <vector>
 
-#define PROFILER_HELPER_CONCAT(ARG_LHS, ARG_RHS) ARG_LHS ## ARG_RHS
-#define PROFILER_HELPER_CONCAT2(ARG_LHS, ARG_RHS) PROFILER_HELPER_CONCAT(ARG_LHS, ARG_RHS)
+#define PROFILER_ENABLED true
 
-#define PROFILER_RESET profiler::Profiler::get().reset()
+#define PROFILER_MODE_COMBINE true
+#define PROFILER_MODE_SEPARATE false
 
-#define PROFILER_COLLECT(ARG_VARIABLE) profiler::Profiler::get().collect(ARG_VARIABLE)
+#if PROFILER_ENABLED
+#define _PROFILER_HELPER_CONCAT(ARG_LHS, ARG_RHS) ARG_LHS ## ARG_RHS
+#define _PROFILER_HELPER_CONCAT2(ARG_LHS, ARG_RHS) _PROFILER_HELPER_CONCAT(ARG_LHS, ARG_RHS)
 
-#define PROFILER_METHOD(ARG_NAME) profiler::SectionMethod _profilerMethod(ARG_NAME)
-
-#define PROFILER_BLOCK(ARG_NAME) profiler::SectionBlock PROFILER_HELPER_CONCAT2(_profilerBlock, __LINE__)(ARG_NAME)
-
-#define PROFILER_THREADS profiler::Threads PROFILER_HELPER_CONCAT2(_profilerThread, __LINE__)
+#define PROFILER_BLOCK(ARG_NAME, ARG_THREAD)\
+static ::profiler::Section _PROFILER_HELPER_CONCAT2(_section, __LINE__)(ARG_NAME, __FILE__, __LINE__);\
+::profiler::ActiveSection _PROFILER_HELPER_CONCAT2(_activeSection, __LINE__)(_PROFILER_HELPER_CONCAT2(_section, __LINE__), ARG_THREAD)
+#else
+#define PROFILER_BLOCK(ARG_NAME, ARG_THREAD)
+#endif
 
 namespace profiler {
 using clock_type = std::chrono::steady_clock;
 using duration_type = clock_type::duration;
 using time_point_type = clock_type::time_point;
+
+class ActiveSection;
 
 class Profiler;
 
@@ -32,53 +40,57 @@ class Section;
 using section_visitor_type = std::function<void(const Section &)>;
 
 class Section {
+    friend class ActiveSection;
+
     friend class Profiler;
 
-public:
-    enum class Type : std::uint8_t {
-        ROOT, METHOD, BLOCK
+    struct PerThread {
+        std::size_t m_timesRun { 0 };
+        std::list<duration_type> m_durations {};
+        duration_type m_combinedTime { 0 };
     };
 
-    std::string path() const;
+public:
+    inline const std::string & name() const {
+        return m_name;
+    }
 
-    duration_type time() const;
+    const std::list<duration_type> & durations() const;
+
+    duration_type duration() const;
+
+    const std::size_t num_calls() const;
+
+    const std::size_t num_threads() const;
+
+    Section(const char * name, const char * filename, std::size_t lineNumber);
 
 protected:
-    Section();
-
-    Section(Type type, Section * parent, const std::string & name);
-
-    ~Section();
-
     void visit(section_visitor_type visitor) const;
 
-    Section * appendChild(Type type, const std::string & name);
-
-    Section * getParent() const;
-
-    void addDuration(duration_type timeSpent);
+    void addDuration(duration_type timeSpent, std::uint32_t threadNumber);
 
     void reset();
 
-private:
-    Type m_type;
-    Section * m_parent;
-    std::string m_name;
-    // List instead of vector because pointers to list elements don't get invalidated on append
-    std::list<Section *> m_children = {};
+    void ensureThreadUsable(std::size_t threadId);
 
-    duration_type m_duration = {};
-    std::mutex m_durationMutex = {};
+    void setMode(bool combine);
+
+private:
+    const std::string m_name;
+    const std::string m_filename;
+    const std::size_t m_lineNumber;
+
+    bool m_combine = false;
+
+    mutable std::vector<PerThread> m_perThread;
+    mutable std::list<duration_type> m_mergedDurations = {};
+
+    mutable std::mutex m_mutex = {};
 };
 
-template<Section::Type T>
-class TypedSection;
-
-class Threads;
-
 class Profiler {
-private:
-    Profiler();
+    friend class Section;
 
 public:
     static Profiler & get();
@@ -95,66 +107,48 @@ public:
 
     void collect(section_visitor_type visitor) const;
 
-    void pushSection(const std::string & name, Section::Type type);
+    void setMaxThreads(std::size_t maxThreads);
 
-    void popSection(duration_type timeSpent);
+    void setMode(bool combine);
 
-    void enterThreadedSection();
-
-    void exitThreadedSection();
+protected:
+    void listSection(Section * section);
 
 private:
-    void setCurrentSection(Section & section);
+    Profiler() = default;
 
-    Section *& getCurrentSection();
+    std::map<std::string, Section *> m_sections;
+    mutable std::mutex m_mutex = {};
 
-    Section m_root;
-    Section * m_currentSection;
-
-    bool m_threaded = false;
-    std::uint64_t m_threadSequence = 0;
-    Section * m_threadSection = nullptr;
+    std::size_t m_maxThreads = 1;
+    bool m_combine = false;
 };
 
-template<Section::Type T>
-class TypedSection {
+class ActiveSection {
 public:
-    explicit TypedSection(const std::string & name) : m_begin(clock_type::now()) {
-        Profiler::get().pushSection(name, T);
+    ActiveSection(Section & section, std::uint32_t threadNumber)
+        : m_begin(clock_type::now()),
+          m_section(section),
+          m_threadNumber(threadNumber) {}
+
+    ActiveSection(Section & section, int threadNumber)
+        : ActiveSection(section, static_cast<std::uint32_t>(threadNumber)) {}
+
+    ~ActiveSection() {
+        m_section.addDuration(clock_type::now() - m_begin, m_threadNumber);
     }
 
-    ~TypedSection() {
-        Profiler::get().popSection(clock_type::now() - m_begin);
-    }
+    ActiveSection(const ActiveSection &) = delete;
 
-    TypedSection(const TypedSection<T> &) = delete;
+    ActiveSection(ActiveSection &&) = delete;
 
-    TypedSection(TypedSection<T> &&) = delete;
+    ActiveSection & operator=(const ActiveSection &) = delete;
 
-    TypedSection & operator=(const TypedSection<T> &) = delete;
-
-    TypedSection & operator=(TypedSection<T> &&) = delete;
+    ActiveSection & operator=(ActiveSection &&) = delete;
 
 private:
     const time_point_type m_begin;
+    Section & m_section;
+    const std::uint32_t m_threadNumber;
 };
-
-using SectionMethod = TypedSection<Section::Type::METHOD>;
-using SectionBlock = TypedSection<Section::Type::BLOCK>;
-
-class Threads {
-public:
-    Threads();
-
-    ~Threads();
-
-    Threads(const Threads &) = delete;
-
-    Threads(Threads &&) = delete;
-
-    Threads & operator=(const Threads &) = delete;
-
-    Threads & operator=(Threads &&) = delete;
-};
-
 }
