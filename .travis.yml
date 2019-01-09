@@ -47,7 +47,7 @@ before_install:
     if [ $TRAVIS_OS_NAME == "osx" ]; then
       brew update;
       brew install gcc;
-      brew install opencl;
+      # brew install opencl;
       brew install libomp;
       brew upgrade cmake;
     fi
@@ -73,4 +73,5 @@ script:
   - cmake -DAF_BUILD_OPENCL=ON ..
   - make all
   - ./lib/test/libcellularautomata-test
+  - ./OpenCLTest
 
