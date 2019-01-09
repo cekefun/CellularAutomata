@@ -8,6 +8,7 @@
 
 #include "cellular-automata/profiler.hpp"
 
+#include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <sstream>

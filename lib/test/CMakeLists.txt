@@ -1,5 +1,5 @@
 set(SOURCES
-    test_Empty.cpp
+    test_OpenMPSupported.cpp
     )
 
 add_executable(libcellularautomata-test ${SOURCES})
