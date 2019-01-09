@@ -7,6 +7,7 @@
 #include "cellular-automata/Simulator.hpp"
 
 #include "cellular-automata/profiler.hpp"
+#include "omp-helper.hpp"
 
 #include <cmath>
 #include <iomanip>
@@ -19,7 +20,7 @@
 using namespace CellularAutomata;
 
 void runSimulation1D(std::size_t elementSize, std::int64_t min, std::int64_t max, std::uint8_t rule) {
-    PROFILER_BLOCK("main-test:1D", omp_get_thread_num());
+    PROFILER_BLOCK("main-test:1D", omp::getThreadNumber());
 
     ElementsDefinition elementsDefinition { { { ElementsDefinition::Type::BOOL, 0 } } };
 
@@ -40,7 +41,7 @@ void runSimulation1D(std::size_t elementSize, std::int64_t min, std::int64_t max
 }
 
 void runSimulationBlinker() {
-    PROFILER_BLOCK("main-test:blinker", omp_get_thread_num());
+    PROFILER_BLOCK("main-test:blinker", omp::getThreadNumber());
 
     ElementsDefinition elementsDefinition { { { ElementsDefinition::Type::BOOL, 0 } } };
 
@@ -63,7 +64,7 @@ void runSimulationBlinker() {
 }
 
 void runSimulationPulsar() {
-    PROFILER_BLOCK("main-test:pulsar", omp_get_thread_num());
+    PROFILER_BLOCK("main-test:pulsar", omp::getThreadNumber());
 
     ElementsDefinition elementsDefinition { { { ElementsDefinition::Type::BOOL, 0 } } };
 
@@ -135,7 +136,7 @@ void runSimulationPulsar() {
 }
 
 void runSimulationLangtonsAnt() {
-    PROFILER_BLOCK("main-test:ant", omp_get_thread_num());
+    PROFILER_BLOCK("main-test:ant", omp::getThreadNumber());
 
     constexpr std::uint8_t size_bool = ElementsDefinition::type_size<ElementsDefinition::Type::BOOL>();
     constexpr std::uint8_t size_int8 = ElementsDefinition::type_size<ElementsDefinition::Type::INT8>();
@@ -319,11 +320,11 @@ int main() {
     }
     //*/
 
-    omp_set_num_threads(omp_get_max_threads());
+    omp::setNumThreads(omp::getMaxThreads());
 
     profiler::Profiler & profiler = profiler::Profiler::get();
     profiler.reset();
-    profiler.setMaxThreads(static_cast<std::size_t>(omp_get_max_threads()));
+    profiler.setMaxThreads(static_cast<std::size_t>(omp::getMaxThreads()));
     profiler.setMode(true);
 
     runSimulation1D(1, -32, 32, 30);

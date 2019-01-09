@@ -1,8 +1,7 @@
 #include "cellular-automata/evolution/EvolutionFunctionLife.hpp"
 
 #include "cellular-automata/profiler.hpp"
-
-#include <omp.h>
+#include "omp-helper.hpp"
 
 using namespace std;
 
@@ -18,7 +17,7 @@ void EvolutionFunctionLife::operator()(shared_ptr<ElementMapper> mapper) {
 void EvolutionFunctionLife::operator()(const ArrayMapper & prev,
                                        ArrayMapper & next,
                                        const Index & index) const {
-    PROFILER_BLOCK("evolution:life", omp_get_thread_num());
+    PROFILER_BLOCK("evolution:life", omp::getThreadNumber());
 
     uint8_t numNeighbours = 0;
 

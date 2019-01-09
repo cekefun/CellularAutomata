@@ -1,8 +1,7 @@
 #include "cellular-automata/evolution/EvolutionFunctionRule.hpp"
 
 #include "cellular-automata/profiler.hpp"
-
-#include <omp.h>
+#include "omp-helper.hpp"
 
 using namespace std;
 
@@ -18,7 +17,7 @@ void EvolutionFunctionRule::operator()(shared_ptr<ElementMapper> mapper) {
 void EvolutionFunctionRule::operator()(const ArrayMapper & prev,
                                        ArrayMapper & next,
                                        const Index & index) const {
-    PROFILER_BLOCK("evolution:rule", omp_get_thread_num());
+    PROFILER_BLOCK("evolution:rule", omp::getThreadNumber());
 
     bool l = prev.exists(index - c_index_one) ? m_mapper->map<bool>(prev(index - c_index_one)) : false;
     bool c = m_mapper->map<bool>(prev(index));

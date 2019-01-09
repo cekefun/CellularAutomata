@@ -1,12 +1,11 @@
 #include "cellular-automata/Simulator.hpp"
 
 #include "cellular-automata/profiler.hpp"
+#include "omp-helper.hpp"
 
 #include <cstdio>
 #include <map>
 #include <sstream>
-
-#include <omp.h>
 
 using namespace std;
 
@@ -20,7 +19,7 @@ Simulator::Simulator(shared_ptr<ArrayMapper> data,
 }
 
 void Simulator::step() {
-    PROFILER_BLOCK("simulator:step", omp_get_thread_num());
+    PROFILER_BLOCK("simulator:step", omp::getThreadNumber());
 
     shared_ptr<ArrayMapper> copy(move(m_data->clone()));
 
@@ -32,7 +31,7 @@ void Simulator::step() {
 
 #pragma omp for
         for (size_t i = 0; i < size; ++i) {
-            PROFILER_BLOCK("simulator:step-bit", omp_get_thread_num());
+            PROFILER_BLOCK("simulator:step-bit", omp::getThreadNumber());
 
             const Index & index = indexes[i];
 
