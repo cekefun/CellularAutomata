@@ -1,5 +1,5 @@
 language: cpp
-dist: trusty
+dist: xenial
 sudo: enabled
 
 env:
@@ -21,7 +21,7 @@ matrix:
         - ocl-icd-opencl-dev
         - beignet
         - clinfo
-        - libiomp-dev
+        - libomp-dev
 
   - os: linux
     compiler: clang
@@ -33,7 +33,7 @@ matrix:
         - ocl-icd-opencl-dev
         - beignet
         - clinfo
-        - libiomp-dev
+        - libomp-dev
 
   - os: osx
     osx_image: xcode8.3
