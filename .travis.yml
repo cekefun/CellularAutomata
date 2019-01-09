@@ -21,6 +21,7 @@ matrix:
         - ocl-icd-opencl-dev
         - beignet
         - clinfo
+        - libiomp-dev
 
   - os: linux
     compiler: clang
@@ -32,6 +33,7 @@ matrix:
         - ocl-icd-opencl-dev
         - beignet
         - clinfo
+        - libiomp-dev
 
   - os: osx
     osx_image: xcode8.3
