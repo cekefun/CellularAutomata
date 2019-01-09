@@ -41,18 +41,34 @@ matrix:
 before_install:
   # If we're working with an OS X machine, then want to install homebrew packages (the APT packages
   # will be ignored)
-  - if [ $TRAVIS_OS_NAME == "osx" ]; then brew update; brew install gcc; brew install opencl; brew upgrade cmake; fi
+  - |
+    if [ $TRAVIS_OS_NAME == "osx" ]; then
+      brew update;
+      brew install gcc;
+      brew install opencl;
+      brew install libomp;
+      brew upgrade cmake;
+    fi
   - export CXX="$CXX_COMPILER_NAME" CC="$CC_COMPILER_NAME"
   # Print the C++ compiler version.
   - $CXX --version
   # Grab a relatively recent version of CMake, unzip it and add
   # it to the path.
-  - if [ $TRAVIS_OS_NAME != "osx" ]; then wget https://cmake.org/files/v3.12/cmake-3.12.0-Linux-x86_64.tar.gz; tar -xzf cmake-3.12.0-Linux-x86_64.tar.gz; export PATH="$PWD/cmake-3.12.0-Linux-x86_64/bin/:$PATH"; fi
-# Print the CMake version.
+  - |
+    if [ $TRAVIS_OS_NAME != "osx" ]; then
+      wget https://cmake.org/files/v3.12/cmake-3.12.0-Linux-x86_64.tar.gz;
+      tar -xzf cmake-3.12.0-Linux-x86_64.tar.gz;
+      export PATH="$PWD/cmake-3.12.0-Linux-x86_64/bin/:$PATH";
+    fi
+  # Print the CMake version.
   - cmake --version
 
+before_script:
+  - mkdir build
+  - cd build
+
 script:
-  - cmake -DAF_BUILD_OPENCL=ON CMakeLists.txt
+  - cmake -DAF_BUILD_OPENCL=ON ../CMakeLists.txt
   - make all
-  - make test
+  - ./lib/test/libcellularautomata-test
 
