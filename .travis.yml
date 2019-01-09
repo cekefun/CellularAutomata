@@ -68,7 +68,7 @@ before_script:
   - cd build
 
 script:
-  - cmake -DAF_BUILD_OPENCL=ON ../CMakeLists.txt
+  - cmake -DAF_BUILD_OPENCL=ON ..
   - make all
   - ./lib/test/libcellularautomata-test
 
