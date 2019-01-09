@@ -41,3 +41,11 @@ message(STATUS "----- GTEST_INCLUDE_DIRS          : ${GTEST_INCLUDE_DIRS}")
 message(STATUS "----- GTEST_BOTH_LIBRARIES        : ${GTEST_BOTH_LIBRARIES}")
 
 message(STATUS " ")
+
+# OpenCL
+message(STATUS "----- OpenCL_FOUND                : ${OpenCL_FOUND}")
+if (${OpenCL_FOUND})
+    message(STATUS "----- OpenCL_INCLUDE_DIRS         : ${OpenCL_INCLUDE_DIRS}")
+    message(STATUS "----- OpenCL_LIBRARIES            : ${OpenCL_LIBRARIES}")
+    message(STATUS "----- OpenCL_LIBRARY              : ${OpenCL_LIBRARY}")
+endif ()
