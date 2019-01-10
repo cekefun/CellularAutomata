@@ -1,10 +1,12 @@
 //
 // Created by cekef on 31-Oct-18.
 //
-#if defined(__APPLE__) || defined(__MACOSX)
+#ifdef __APPLE__
 #include <OpenCL/cl.hpp>
-#else
+#elif __linux__
 #include <CL/cl2.hpp>
+#else
+#include <CL/cl.hpp>
 #endif
 #include <iostream>
 #include <fstream>
@@ -37,11 +39,11 @@ cl::Program CreateProgram(const std::string& filename){
     std::string src = gol.Compile();
     std::cout<<src<<std::endl;
 
-#if defined(__APPLE__) || defined(__MACOSX)
-    cl::Program::Sources sources(1,std::make_pair(src.c_str(),src.length()+1));
-#else
+#if __linux__
     cl::Program::Sources sources;
     sources.push_back(src);
+#else
+    cl::Program::Sources sources(1,std::make_pair(src.c_str(),src.length()+1));
 #endif
 
     cl::Context context(default_device);
