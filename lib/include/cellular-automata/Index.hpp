@@ -5,18 +5,21 @@
 namespace CellularAutomata {
 
 struct Index {
-    enum class Dimensionality : unsigned char {
+    enum class Dimensionality : std::uint8_t {
         ONE, TWO, THREE
     };
 
-    inline constexpr explicit Index(std::int64_t x)
-        : x(x), y(0), z(0), dimensionality(Dimensionality::ONE) {}
+    inline static constexpr Index make(std::int64_t x) {
+        return Index { x, 0, 0, Dimensionality::ONE };
+    }
 
-    inline constexpr Index(std::int64_t x, std::int64_t y)
-        : x(x), y(y), z(0), dimensionality(Dimensionality::TWO) {}
+    inline static constexpr Index make(std::int64_t x, std::int64_t y) {
+        return Index { x, y, 0, Dimensionality::TWO };
+    }
 
-    inline constexpr Index(std::int64_t x, std::int64_t y, std::int64_t z)
-        : x(x), y(y), z(z), dimensionality(Dimensionality::THREE) {}
+    inline static constexpr Index make(std::int64_t x, std::int64_t y, std::int64_t z) {
+        return Index { x, y, z, Dimensionality::THREE };
+    }
 
     inline bool operator==(const Index & other) const {
         if (dimensionality != other.dimensionality) {
@@ -78,23 +81,11 @@ struct Index {
     }
 
     inline Index operator+(const Index & other) const {
-        if (dimensionality == Dimensionality::ONE) {
-            return Index { x + other.x };
-        } else if (dimensionality == Dimensionality::TWO) {
-            return Index { x + other.x, y + other.y };
-        } else {
-            return Index { x + other.x, y + other.y, z + other.z };
-        }
+        return Index { x + other.x, y + other.y, z + other.z, dimensionality };
     }
 
     inline Index operator-(const Index & other) const {
-        if (dimensionality == Dimensionality::ONE) {
-            return Index { x - other.x };
-        } else if (dimensionality == Dimensionality::TWO) {
-            return Index { x - other.x, y - other.y };
-        } else {
-            return Index { x - other.x, y - other.y, z - other.z };
-        }
+        return Index { x - other.x, y - other.y, z - other.z, dimensionality };
     }
 
     std::int64_t x;

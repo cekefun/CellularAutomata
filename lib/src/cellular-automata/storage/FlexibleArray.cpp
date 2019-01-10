@@ -22,11 +22,11 @@ FlexibleArray::FlexibleArray(FlexibleArray && o) noexcept
       m_numElements(o.m_numElements),
       m_impl(move(o.m_impl)) {}
 
-unsigned char * FlexibleArray::operator[](size_t index) {
+unsigned char * FlexibleArray::operator[](size_t index) noexcept {
     return (*reinterpret_cast<IFlexibleArrayImpl *>(m_impl.get()))[index * m_elementSize];
 }
 
-const unsigned char * FlexibleArray::operator[](size_t index) const {
+const unsigned char * FlexibleArray::operator[](size_t index) const noexcept {
     return (*reinterpret_cast<const IFlexibleArrayImpl *>(m_impl.get()))[index * m_elementSize];
 }
 

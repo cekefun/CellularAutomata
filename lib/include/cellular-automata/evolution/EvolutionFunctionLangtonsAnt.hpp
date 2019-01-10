@@ -15,7 +15,7 @@ public:
     void operator()(const ArrayMapper & prev, ArrayMapper & next, const Index & index) const override;
 
 private:
-    std::shared_ptr<ElementMapper> m_mapper;
+    std::shared_ptr<ElementMapper> m_mapper {};
 };
 
 }

@@ -5,7 +5,6 @@ set(SOURCES
     src/cellular-automata/storage/ArrayMapper1D.cpp
     src/cellular-automata/storage/ArrayMapper2D.cpp
     src/cellular-automata/storage/ElementMapper.cpp
-    src/cellular-automata/storage/ElementMapperImpl.cpp
     src/cellular-automata/storage/FlexibleArray.cpp
     src/cellular-automata/game-of-life.cpp
     src/cellular-automata/Simulator.cpp

@@ -17,7 +17,7 @@ public:
 private:
     std::bitset<8> m_born;
     std::bitset<8> m_survive;
-    std::shared_ptr<ElementMapper> m_mapper;
+    std::shared_ptr<ElementMapper> m_mapper {};
 };
 
 }

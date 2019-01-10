@@ -38,15 +38,19 @@ public:
         o.m_storage = nullptr;
     }
 
-    ~AlignedFlexibleArrayImpl() override {
+    ~AlignedFlexibleArrayImpl() noexcept override {
         delete[] m_storage;
     }
 
-    unsigned char * operator[](size_t index) override {
+    AlignedFlexibleArrayImpl & operator=(const AlignedFlexibleArrayImpl &) = delete;
+
+    AlignedFlexibleArrayImpl & operator=(AlignedFlexibleArrayImpl &&) = delete;
+
+    unsigned char * operator[](size_t index) noexcept override {
         return reinterpret_cast<unsigned char *>(m_storage) + index;
     }
 
-    const unsigned char * operator[](size_t index) const override {
+    const unsigned char * operator[](size_t index) const noexcept override {
         return reinterpret_cast<unsigned char *>(m_storage) + index;
     }
 
@@ -54,35 +58,35 @@ public:
         return std::make_shared<AlignedFlexibleArrayImpl>(*this);
     }
 
-    size_t allocated_bytes() const override {
+    size_t allocated_bytes() const noexcept override {
         return sizeof(storage_type) * calcSize(m_size);
     }
 
-    iterator begin() override {
+    iterator begin() noexcept override {
         return reinterpret_cast<unsigned char *>(m_storage);
     }
 
-    const_iterator begin() const override {
+    const_iterator begin() const noexcept override {
         return reinterpret_cast<unsigned char *>(m_storage);
     }
 
-    const_iterator cbegin() const override {
+    const_iterator cbegin() const noexcept override {
         return reinterpret_cast<unsigned char *>(m_storage);
     }
 
-    iterator end() override {
+    iterator end() noexcept override {
         return reinterpret_cast<unsigned char *>(m_storage) + size();
     }
 
-    const_iterator end() const override {
+    const_iterator end() const noexcept override {
         return reinterpret_cast<unsigned char *>(m_storage) + size();
     }
 
-    const_iterator cend() const override {
+    const_iterator cend() const noexcept override {
         return reinterpret_cast<unsigned char *>(m_storage) + size();
     }
 
-    size_type size() const override {
+    size_type size() const noexcept override {
         return m_size;
     }
 

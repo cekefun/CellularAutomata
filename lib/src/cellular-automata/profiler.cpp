@@ -31,7 +31,7 @@ duration_type Section::duration() const {
     return totalDuration;
 }
 
-const std::size_t Section::num_calls() const {
+std::size_t Section::num_calls() const noexcept {
     std::size_t result = 0;
 
     for (auto & thread : m_perThread) {
@@ -41,7 +41,7 @@ const std::size_t Section::num_calls() const {
     return result;
 }
 
-const std::size_t Section::num_threads() const {
+std::size_t Section::num_threads() const noexcept {
     std::size_t result = 0;
 
     for (auto & thread : m_perThread) {
@@ -96,7 +96,7 @@ void Section::setMode(bool combine) {
     m_combine = combine;
 }
 
-Profiler & Profiler::get() {
+Profiler & Profiler::get() noexcept {
     static Profiler instance;
 
     return instance;

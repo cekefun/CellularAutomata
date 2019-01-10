@@ -17,11 +17,11 @@ public:
 
     FlexibleArray & operator=(FlexibleArray &&) = delete;
 
-    unsigned char * operator[](std::size_t index);
+    unsigned char * operator[](std::size_t index) noexcept;
 
-    const unsigned char * operator[](std::size_t index) const;
+    const unsigned char * operator[](std::size_t index) const noexcept;
 
-    inline void * _impl() const { return m_impl.get(); }
+    inline void * _impl() const noexcept { return m_impl.get(); }
 
 private:
     const std::size_t m_elementSize;

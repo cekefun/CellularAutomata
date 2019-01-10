@@ -27,7 +27,7 @@ void runSimulation1D(std::size_t elementSize, std::int64_t min, std::int64_t max
     auto data = std::make_shared<ArrayMapper1D>(elementSize, min, max);
     auto mapper = std::make_shared<ElementMapper>(elementsDefinition);
 
-    mapper->map<bool>((*data)(Index { (min + max) / 2 })) = true;
+    mapper->map<bool>((*data)(Index::make((min + max) / 2))) = true;
 
     Simulator sim(std::move(data),
                   std::move(mapper),
@@ -48,13 +48,13 @@ void runSimulationBlinker() {
     auto data = std::make_shared<ArrayMapper2D>(1, 0, 0, 5, 5);
     auto mapper = std::make_shared<ElementMapper>(elementsDefinition);
 
-    mapper->map<bool>((*data)(Index { 2, 1 })) = true;
-    mapper->map<bool>((*data)(Index { 2, 2 })) = true;
-    mapper->map<bool>((*data)(Index { 2, 3 })) = true;
+    mapper->map<bool>((*data)(Index::make(2, 1))) = true;
+    mapper->map<bool>((*data)(Index::make(2, 2))) = true;
+    mapper->map<bool>((*data)(Index::make(2, 3))) = true;
 
     Simulator sim(std::move(data),
                   std::move(mapper),
-                  std::make_shared<EvolutionFunctionLife>(std::bitset<8> { 0b1000 }, std::bitset<8> { 0b1100 }));
+                  std::make_shared<EvolutionFunctionLife>(std::bitset<8> { 8 }, std::bitset<8> { 8 + 4 }));
 
     for (unsigned int i = 0; i < 8; ++i) {
         sim.step();
@@ -72,61 +72,61 @@ void runSimulationPulsar() {
     auto mapper = std::make_shared<ElementMapper>(elementsDefinition);
 
     // Top left quadrant
-    mapper->map<bool>((*data)(Index { 2, 4 })) = true;
-    mapper->map<bool>((*data)(Index { 2, 5 })) = true;
-    mapper->map<bool>((*data)(Index { 2, 6 })) = true;
-    mapper->map<bool>((*data)(Index { 4, 2 })) = true;
-    mapper->map<bool>((*data)(Index { 5, 2 })) = true;
-    mapper->map<bool>((*data)(Index { 6, 2 })) = true;
-    mapper->map<bool>((*data)(Index { 7, 4 })) = true;
-    mapper->map<bool>((*data)(Index { 7, 5 })) = true;
-    mapper->map<bool>((*data)(Index { 7, 6 })) = true;
-    mapper->map<bool>((*data)(Index { 4, 7 })) = true;
-    mapper->map<bool>((*data)(Index { 5, 7 })) = true;
-    mapper->map<bool>((*data)(Index { 6, 7 })) = true;
+    mapper->map<bool>((*data)(Index::make(2, 4))) = true;
+    mapper->map<bool>((*data)(Index::make(2, 5))) = true;
+    mapper->map<bool>((*data)(Index::make(2, 6))) = true;
+    mapper->map<bool>((*data)(Index::make(4, 2))) = true;
+    mapper->map<bool>((*data)(Index::make(5, 2))) = true;
+    mapper->map<bool>((*data)(Index::make(6, 2))) = true;
+    mapper->map<bool>((*data)(Index::make(7, 4))) = true;
+    mapper->map<bool>((*data)(Index::make(7, 5))) = true;
+    mapper->map<bool>((*data)(Index::make(7, 6))) = true;
+    mapper->map<bool>((*data)(Index::make(4, 7))) = true;
+    mapper->map<bool>((*data)(Index::make(5, 7))) = true;
+    mapper->map<bool>((*data)(Index::make(6, 7))) = true;
     // Top right quadrant
-    mapper->map<bool>((*data)(Index { 2, 10 })) = true;
-    mapper->map<bool>((*data)(Index { 2, 11 })) = true;
-    mapper->map<bool>((*data)(Index { 2, 12 })) = true;
-    mapper->map<bool>((*data)(Index { 4, 14 })) = true;
-    mapper->map<bool>((*data)(Index { 5, 14 })) = true;
-    mapper->map<bool>((*data)(Index { 6, 14 })) = true;
-    mapper->map<bool>((*data)(Index { 7, 10 })) = true;
-    mapper->map<bool>((*data)(Index { 7, 11 })) = true;
-    mapper->map<bool>((*data)(Index { 7, 12 })) = true;
-    mapper->map<bool>((*data)(Index { 4, 9 })) = true;
-    mapper->map<bool>((*data)(Index { 5, 9 })) = true;
-    mapper->map<bool>((*data)(Index { 6, 9 })) = true;
+    mapper->map<bool>((*data)(Index::make(2, 10))) = true;
+    mapper->map<bool>((*data)(Index::make(2, 11))) = true;
+    mapper->map<bool>((*data)(Index::make(2, 12))) = true;
+    mapper->map<bool>((*data)(Index::make(4, 14))) = true;
+    mapper->map<bool>((*data)(Index::make(5, 14))) = true;
+    mapper->map<bool>((*data)(Index::make(6, 14))) = true;
+    mapper->map<bool>((*data)(Index::make(7, 10))) = true;
+    mapper->map<bool>((*data)(Index::make(7, 11))) = true;
+    mapper->map<bool>((*data)(Index::make(7, 12))) = true;
+    mapper->map<bool>((*data)(Index::make(4, 9))) = true;
+    mapper->map<bool>((*data)(Index::make(5, 9))) = true;
+    mapper->map<bool>((*data)(Index::make(6, 9))) = true;
     // Bottom left quadrant
-    mapper->map<bool>((*data)(Index { 14, 4 })) = true;
-    mapper->map<bool>((*data)(Index { 14, 5 })) = true;
-    mapper->map<bool>((*data)(Index { 14, 6 })) = true;
-    mapper->map<bool>((*data)(Index { 10, 2 })) = true;
-    mapper->map<bool>((*data)(Index { 11, 2 })) = true;
-    mapper->map<bool>((*data)(Index { 12, 2 })) = true;
-    mapper->map<bool>((*data)(Index { 9, 4 })) = true;
-    mapper->map<bool>((*data)(Index { 9, 5 })) = true;
-    mapper->map<bool>((*data)(Index { 9, 6 })) = true;
-    mapper->map<bool>((*data)(Index { 10, 7 })) = true;
-    mapper->map<bool>((*data)(Index { 11, 7 })) = true;
-    mapper->map<bool>((*data)(Index { 12, 7 })) = true;
+    mapper->map<bool>((*data)(Index::make(14, 4))) = true;
+    mapper->map<bool>((*data)(Index::make(14, 5))) = true;
+    mapper->map<bool>((*data)(Index::make(14, 6))) = true;
+    mapper->map<bool>((*data)(Index::make(10, 2))) = true;
+    mapper->map<bool>((*data)(Index::make(11, 2))) = true;
+    mapper->map<bool>((*data)(Index::make(12, 2))) = true;
+    mapper->map<bool>((*data)(Index::make(9, 4))) = true;
+    mapper->map<bool>((*data)(Index::make(9, 5))) = true;
+    mapper->map<bool>((*data)(Index::make(9, 6))) = true;
+    mapper->map<bool>((*data)(Index::make(10, 7))) = true;
+    mapper->map<bool>((*data)(Index::make(11, 7))) = true;
+    mapper->map<bool>((*data)(Index::make(12, 7))) = true;
     // Bottom right quadrant
-    mapper->map<bool>((*data)(Index { 14, 10 })) = true;
-    mapper->map<bool>((*data)(Index { 14, 11 })) = true;
-    mapper->map<bool>((*data)(Index { 14, 12 })) = true;
-    mapper->map<bool>((*data)(Index { 10, 14 })) = true;
-    mapper->map<bool>((*data)(Index { 11, 14 })) = true;
-    mapper->map<bool>((*data)(Index { 12, 14 })) = true;
-    mapper->map<bool>((*data)(Index { 9, 10 })) = true;
-    mapper->map<bool>((*data)(Index { 9, 11 })) = true;
-    mapper->map<bool>((*data)(Index { 9, 12 })) = true;
-    mapper->map<bool>((*data)(Index { 10, 9 })) = true;
-    mapper->map<bool>((*data)(Index { 11, 9 })) = true;
-    mapper->map<bool>((*data)(Index { 12, 9 })) = true;
+    mapper->map<bool>((*data)(Index::make(14, 10))) = true;
+    mapper->map<bool>((*data)(Index::make(14, 11))) = true;
+    mapper->map<bool>((*data)(Index::make(14, 12))) = true;
+    mapper->map<bool>((*data)(Index::make(10, 14))) = true;
+    mapper->map<bool>((*data)(Index::make(11, 14))) = true;
+    mapper->map<bool>((*data)(Index::make(12, 14))) = true;
+    mapper->map<bool>((*data)(Index::make(9, 10))) = true;
+    mapper->map<bool>((*data)(Index::make(9, 11))) = true;
+    mapper->map<bool>((*data)(Index::make(9, 12))) = true;
+    mapper->map<bool>((*data)(Index::make(10, 9))) = true;
+    mapper->map<bool>((*data)(Index::make(11, 9))) = true;
+    mapper->map<bool>((*data)(Index::make(12, 9))) = true;
 
     Simulator sim(std::move(data),
                   std::move(mapper),
-                  std::make_shared<EvolutionFunctionLife>(std::bitset<8> { 0b1000 }, std::bitset<8> { 0b1100 }));
+                  std::make_shared<EvolutionFunctionLife>(std::bitset<8> { 8 }, std::bitset<8> { 8 + 4 }));
 
     for (unsigned int i = 0; i < 16; ++i) {
         sim.step();
@@ -150,7 +150,7 @@ void runSimulationLangtonsAnt() {
     auto data = std::make_shared<ArrayMapper2D>(size_bool + size_int8, 0, 0, 37, 33);
     auto mapper = std::make_shared<ElementMapper>(def);
 
-    mapper->map<std::int8_t>((*data)(Index { 11, 11 }), 1) = 1; // Place the ant
+    mapper->map<std::int8_t>((*data)(Index::make(11, 11)), 1) = 1; // Place the ant
 
     Simulator sim(std::move(data),
                   std::move(mapper),
@@ -195,10 +195,10 @@ void test() {
             std::printf("\033[97m");
         }
         std::printf(" %3ld: %08jX = %02X        %08jX = %04X        %08jX = %08X        %08jX = %016lX\n", i,
-                    reinterpret_cast<std::uint64_t>(data1(Index(i))), *(reinterpret_cast<std::uint8_t *>(data1(Index(i)))),
-                    reinterpret_cast<std::uint64_t>(data2(Index(i))), *(reinterpret_cast<std::uint16_t *>(data2(Index(i)))),
-                    reinterpret_cast<std::uint64_t>(data4(Index(i))), *(reinterpret_cast<std::uint32_t *>(data4(Index(i)))),
-                    reinterpret_cast<std::uint64_t>(data8(Index(i))), *(reinterpret_cast<std::uint64_t *>(data8(Index(i))))
+                    reinterpret_cast<std::uint64_t>(data1(Index::make(i))), *(reinterpret_cast<std::uint8_t *>(data1(Index::make(i)))),
+                    reinterpret_cast<std::uint64_t>(data2(Index::make(i))), *(reinterpret_cast<std::uint16_t *>(data2(Index::make(i)))),
+                    reinterpret_cast<std::uint64_t>(data4(Index::make(i))), *(reinterpret_cast<std::uint32_t *>(data4(Index::make(i)))),
+                    reinterpret_cast<std::uint64_t>(data8(Index::make(i))), *(reinterpret_cast<std::uint64_t *>(data8(Index::make(i))))
         );
         std::printf("\033[0m");
     }
@@ -322,10 +322,12 @@ int main() {
 
     omp::setNumThreads(omp::getMaxThreads());
 
+#if PROFILER_ENABLED
     profiler::Profiler & profiler = profiler::Profiler::get();
     profiler.reset();
     profiler.setMaxThreads(static_cast<std::size_t>(omp::getMaxThreads()));
-    profiler.setMode(true);
+    profiler.setMode(PROFILER_MODE_SEPARATE);
+#endif
 
     runSimulation1D(1, -32, 32, 30);
     runSimulation1D(1, -32, 32, 126);
@@ -334,7 +336,9 @@ int main() {
     runSimulationPulsar();
     runSimulationLangtonsAnt();
 
+#if PROFILER_ENABLED
     profiler.collect(sectionVisitor);
+#endif
 
     return 0;
 }

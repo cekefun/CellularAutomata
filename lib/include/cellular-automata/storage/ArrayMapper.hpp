@@ -22,19 +22,19 @@ public:
 
     virtual ~ArrayMapper() = default;
 
-    virtual bool exists(const Index & index) const = 0;
+    virtual bool exists(const Index & index) const noexcept = 0;
 
-    virtual unsigned char * operator()(const Index & index) = 0;
+    virtual unsigned char * operator()(const Index & index) noexcept = 0;
 
-    virtual const unsigned char * operator()(const Index & index) const = 0;
+    virtual const unsigned char * operator()(const Index & index) const noexcept = 0;
 
     virtual std::shared_ptr<ArrayMapper> clone() const = 0;
 
     virtual const std::vector<Index> & indexes() const = 0;
 
-    virtual Index::Dimensionality getDimensionality() const = 0;
+    virtual Index::Dimensionality getDimensionality() const noexcept = 0;
 
-    virtual bool isInfinite() const = 0;
+    virtual bool isInfinite() const noexcept = 0;
 };
 
 }

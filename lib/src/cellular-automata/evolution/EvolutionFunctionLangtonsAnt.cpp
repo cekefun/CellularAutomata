@@ -28,51 +28,63 @@ void EvolutionFunctionLangtonsAnt::operator()(const ArrayMapper & prev,
 
     int8_t ant_result = 0;
 
-    if (prev.exists(index - Index { 0, -1 })) { // Up neighbour
-        bool color = m_mapper->map<bool>(prev(index - Index { 0, -1 }), 0);
-        int8_t ant = m_mapper->map<int8_t>(prev(index - Index { 0, -1 }), 1);
+    {
+        Index neighbour = index - Index::make(0, -1);
+        if (prev.exists(neighbour)) { // Up neighbour
+            bool color = m_mapper->map<bool>(prev(neighbour), 0);
+            int8_t ant = m_mapper->map<int8_t>(prev(neighbour), 1);
 
-        if (color ? ant == dir_right : ant == dir_left) {
-            if (ant_result > 0) {
-                ant_result = -1;
-            } else {
-                ant_result = dir_down;
+            if (color ? ant == dir_right : ant == dir_left) {
+                if (ant_result > 0) {
+                    ant_result = -1;
+                } else {
+                    ant_result = dir_down;
+                }
             }
         }
     }
-    if (prev.exists(index - Index { 1, 0 })) { // Right neighbour
-        bool color = m_mapper->map<bool>(prev(index - Index { 1, 0 }), 0);
-        int8_t ant = m_mapper->map<int8_t>(prev(index - Index { 1, 0 }), 1);
+    if (ant_result != -1) {
+        Index neighbour = index - Index::make(1, 0);
+        if (prev.exists(neighbour)) { // Right neighbour
+            bool color = m_mapper->map<bool>(prev(neighbour), 0);
+            int8_t ant = m_mapper->map<int8_t>(prev(neighbour), 1);
 
-        if (color ? ant == dir_down : ant == dir_up) {
-            if (ant_result > 0) {
-                ant_result = -1;
-            } else {
-                ant_result = dir_left;
+            if (color ? ant == dir_down : ant == dir_up) {
+                if (ant_result > 0) {
+                    ant_result = -1;
+                } else {
+                    ant_result = dir_left;
+                }
             }
         }
     }
-    if (prev.exists(index - Index { 0, 1 })) { // Down neighbour
-        bool color = m_mapper->map<bool>(prev(index - Index { 0, 1 }), 0);
-        int8_t ant = m_mapper->map<int8_t>(prev(index - Index { 0, 1 }), 1);
+    if (ant_result != -1) {
+        Index neighbour = index - Index::make(0, 1);
+        if (prev.exists(neighbour)) { // Down neighbour
+            bool color = m_mapper->map<bool>(prev(neighbour), 0);
+            int8_t ant = m_mapper->map<int8_t>(prev(neighbour), 1);
 
-        if (color ? ant == dir_left : ant == dir_right) {
-            if (ant_result > 0) {
-                ant_result = -1;
-            } else {
-                ant_result = dir_up;
+            if (color ? ant == dir_left : ant == dir_right) {
+                if (ant_result > 0) {
+                    ant_result = -1;
+                } else {
+                    ant_result = dir_up;
+                }
             }
         }
     }
-    if (prev.exists(index - Index { -1, 0 })) { // Left neighbour
-        bool color = m_mapper->map<bool>(prev(index - Index { -1, 0 }), 0);
-        int8_t ant = m_mapper->map<int8_t>(prev(index - Index { -1, 0 }), 1);
+    if (ant_result != -1) {
+        Index neighbour = index - Index::make(-1, 0);
+        if (prev.exists(neighbour)) { // Left neighbour
+            bool color = m_mapper->map<bool>(prev(neighbour), 0);
+            int8_t ant = m_mapper->map<int8_t>(prev(neighbour), 1);
 
-        if (color ? ant == dir_up : ant == dir_down) {
-            if (ant_result > 0) {
-                ant_result = -1;
-            } else {
-                ant_result = dir_right;
+            if (color ? ant == dir_up : ant == dir_down) {
+                if (ant_result > 0) {
+                    ant_result = -1;
+                } else {
+                    ant_result = dir_right;
+                }
             }
         }
     }

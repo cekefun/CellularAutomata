@@ -18,19 +18,19 @@ public:
 
     ArrayMapper2D(ArrayMapper2D && o) noexcept;
 
-    bool exists(const Index & index) const override;
+    bool exists(const Index & index) const noexcept override;
 
-    unsigned char * operator()(const Index & index) override;
+    unsigned char * operator()(const Index & index) noexcept override ;
 
-    const unsigned char * operator()(const Index & index) const override;
+    const unsigned char * operator()(const Index & index) const noexcept override;
 
     std::shared_ptr<ArrayMapper> clone() const override;
 
     const std::vector<Index> & indexes() const override;
 
-    inline Index::Dimensionality getDimensionality() const override { return Index::Dimensionality::TWO; }
+    inline Index::Dimensionality getDimensionality() const noexcept override { return Index::Dimensionality::TWO; }
 
-    inline bool isInfinite() const override { return false; }
+    inline bool isInfinite() const noexcept override { return false; }
 
     inline const FlexibleArray & _backend() const { return m_array; }
 

@@ -23,14 +23,14 @@ void EvolutionFunctionLife::operator()(const ArrayMapper & prev,
 
     bool alive = m_mapper->map<bool>(prev(index));
 
-    if (prev.exists(index - Index { -1, -1 }) && m_mapper->map<bool>(prev(index - Index { -1, -1 }))) ++numNeighbours;
-    if (prev.exists(index - Index { -0, -1 }) && m_mapper->map<bool>(prev(index - Index { -0, -1 }))) ++numNeighbours;
-    if (prev.exists(index - Index { +1, -1 }) && m_mapper->map<bool>(prev(index - Index { +1, -1 }))) ++numNeighbours;
-    if (prev.exists(index - Index { +1, -0 }) && m_mapper->map<bool>(prev(index - Index { +1, -0 }))) ++numNeighbours;
-    if (prev.exists(index - Index { +1, +1 }) && m_mapper->map<bool>(prev(index - Index { +1, +1 }))) ++numNeighbours;
-    if (prev.exists(index - Index { +0, +1 }) && m_mapper->map<bool>(prev(index - Index { +0, +1 }))) ++numNeighbours;
-    if (prev.exists(index - Index { -1, +1 }) && m_mapper->map<bool>(prev(index - Index { -1, +1 }))) ++numNeighbours;
-    if (prev.exists(index - Index { -1, +0 }) && m_mapper->map<bool>(prev(index - Index { -1, +0 }))) ++numNeighbours;
+    if (prev.exists(index - Index::make(-1, -1)) && m_mapper->map<bool>(prev(index - Index::make(-1, -1)))) ++numNeighbours;
+    if (prev.exists(index - Index::make(-0, -1)) && m_mapper->map<bool>(prev(index - Index::make(-0, -1)))) ++numNeighbours;
+    if (prev.exists(index - Index::make(+1, -1)) && m_mapper->map<bool>(prev(index - Index::make(+1, -1)))) ++numNeighbours;
+    if (prev.exists(index - Index::make(+1, -0)) && m_mapper->map<bool>(prev(index - Index::make(+1, -0)))) ++numNeighbours;
+    if (prev.exists(index - Index::make(+1, +1)) && m_mapper->map<bool>(prev(index - Index::make(+1, +1)))) ++numNeighbours;
+    if (prev.exists(index - Index::make(+0, +1)) && m_mapper->map<bool>(prev(index - Index::make(+0, +1)))) ++numNeighbours;
+    if (prev.exists(index - Index::make(-1, +1)) && m_mapper->map<bool>(prev(index - Index::make(-1, +1)))) ++numNeighbours;
+    if (prev.exists(index - Index::make(-1, +0)) && m_mapper->map<bool>(prev(index - Index::make(-1, +0)))) ++numNeighbours;
 
     // m_mapper->map<bool>(next(index)) = m_rule & (1 << bit);
     if (alive && !m_survive[numNeighbours]) {

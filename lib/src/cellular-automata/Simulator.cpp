@@ -21,22 +21,16 @@ Simulator::Simulator(shared_ptr<ArrayMapper> data,
 void Simulator::step() {
     PROFILER_BLOCK("simulator:step", omp::getThreadNumber());
 
-    shared_ptr<ArrayMapper> copy(move(m_data->clone()));
+    shared_ptr<ArrayMapper> copy(m_data->clone());
 
     const vector<Index> & indexes = m_data->indexes();
+    size_t size = indexes.size();
 
-#pragma omp parallel
-    {
-        size_t size = indexes.size();
+#pragma omp parallel for firstprivate(m_evolve, m_data, size, copy)
+    for (size_t i = 0; i < size; ++i) {
+        PROFILER_BLOCK("simulator:step-bit", omp::getThreadNumber());
 
-#pragma omp for
-        for (size_t i = 0; i < size; ++i) {
-            PROFILER_BLOCK("simulator:step-bit", omp::getThreadNumber());
-
-            const Index & index = indexes[i];
-
-            (*m_evolve)(*m_data, *copy, index);
-        }
+        (*m_evolve)(*m_data, *copy, indexes[i]);
     }
 
     m_oldStates.emplace_back(m_data);

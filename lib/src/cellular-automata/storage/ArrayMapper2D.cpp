@@ -12,7 +12,8 @@ inline size_t map(int64_t minX, int64_t minY, int64_t, int64_t maxY, const Cellu
 
 namespace CellularAutomata {
 ArrayMapper2D::ArrayMapper2D(size_t elementSize, int64_t minX, int64_t minY, int64_t maxX, int64_t maxY)
-    : m_minX(minX),
+    : ArrayMapper(),
+      m_minX(minX),
       m_minY(minY),
       m_maxX(maxX),
       m_maxY(maxY),
@@ -24,13 +25,14 @@ ArrayMapper2D::ArrayMapper2D(size_t elementSize, int64_t minX, int64_t minY, int
 
     for (int64_t x = minX; x < maxX; ++x) {
         for (int64_t y = minY; y < maxY; ++y) {
-            m_indexes.emplace_back(Index { x, y });
+            m_indexes.emplace_back(Index::make(x, y));
         }
     }
 }
 
 ArrayMapper2D::ArrayMapper2D(const ArrayMapper2D & o)
-    : m_minX(o.m_minX),
+    : ArrayMapper(),
+      m_minX(o.m_minX),
       m_minY(o.m_minY),
       m_maxX(o.m_maxX),
       m_maxY(o.m_maxY),
@@ -39,7 +41,8 @@ ArrayMapper2D::ArrayMapper2D(const ArrayMapper2D & o)
       m_array(o.m_array) {}
 
 ArrayMapper2D::ArrayMapper2D(ArrayMapper2D && o) noexcept
-    : m_minX(o.m_minX),
+    : ArrayMapper(),
+      m_minX(o.m_minX),
       m_minY(o.m_minY),
       m_maxX(o.m_maxX),
       m_maxY(o.m_maxY),
@@ -47,25 +50,27 @@ ArrayMapper2D::ArrayMapper2D(ArrayMapper2D && o) noexcept
       m_indexes(move(o.m_indexes)),
       m_array(move(o.m_array)) {}
 
-bool ArrayMapper2D::exists(const Index & index) const {
-    if (index.dimensionality != Index::Dimensionality::TWO) {
-        throw logic_error("Invalid index dimension");
-    }
+bool ArrayMapper2D::exists(const Index & index) const noexcept {
+//    if (index.dimensionality != Index::Dimensionality::TWO) {
+//        throw logic_error("Invalid index dimension");
+//    }
 
     return index.x >= m_minX && index.x < m_maxX && index.y >= m_minY && index.y < m_maxY;
 }
 
-unsigned char * ArrayMapper2D::operator()(const Index & index) {
-    if (index.dimensionality != Index::Dimensionality::TWO) {
-        throw logic_error("Invalid index dimension");
-    }
+unsigned char * ArrayMapper2D::operator()(const Index & index) noexcept {
+//    if (index.dimensionality != Index::Dimensionality::TWO) {
+//        throw logic_error("Invalid index dimension");
+//    }
+
     return m_array[map(m_minX, m_minY, m_maxX, m_maxY, index)];
 }
 
-const unsigned char * ArrayMapper2D::operator()(const Index & index) const {
-    if (index.dimensionality != Index::Dimensionality::TWO) {
-        throw logic_error("Invalid index dimension");
-    }
+const unsigned char * ArrayMapper2D::operator()(const Index & index) const noexcept {
+//    if (index.dimensionality != Index::Dimensionality::TWO) {
+//        throw logic_error("Invalid index dimension");
+//    }
+
     return m_array[map(m_minX, m_minY, m_maxX, m_maxY, index)];
 }
 

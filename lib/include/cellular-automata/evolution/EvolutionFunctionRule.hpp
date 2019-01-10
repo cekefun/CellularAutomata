@@ -14,9 +14,9 @@ public:
 
 private:
     std::uint8_t m_rule;
-    std::shared_ptr<ElementMapper> m_mapper;
+    std::shared_ptr<ElementMapper> m_mapper {};
 
-    const Index c_index_one { 1 };
+    const Index c_index_one = Index::make(1);
 };
 
 }

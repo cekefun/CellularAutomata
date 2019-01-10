@@ -10,7 +10,9 @@
 #include <string>
 #include <vector>
 
-#define PROFILER_ENABLED true
+#ifndef PROFILER_ENABLED
+#define PROFILER_ENABLED false
+#endif
 
 #define PROFILER_MODE_COMBINE true
 #define PROFILER_MODE_SEPARATE false
@@ -51,7 +53,7 @@ class Section {
     };
 
 public:
-    inline const std::string & name() const {
+    inline const std::string & name() const noexcept {
         return m_name;
     }
 
@@ -59,9 +61,9 @@ public:
 
     duration_type duration() const;
 
-    const std::size_t num_calls() const;
+    std::size_t num_calls() const noexcept;
 
-    const std::size_t num_threads() const;
+    std::size_t num_threads() const noexcept;
 
     Section(const char * name, const char * filename, std::size_t lineNumber);
 
@@ -83,17 +85,17 @@ private:
 
     bool m_combine = false;
 
-    mutable std::vector<PerThread> m_perThread;
-    mutable std::list<duration_type> m_mergedDurations = {};
+    mutable std::vector<PerThread> m_perThread {};
+    mutable std::list<duration_type> m_mergedDurations {};
 
-    mutable std::mutex m_mutex = {};
+    mutable std::mutex m_mutex {};
 };
 
 class Profiler {
     friend class Section;
 
 public:
-    static Profiler & get();
+    static Profiler & get() noexcept;
 
     Profiler(const Profiler &) = delete;
 
@@ -117,8 +119,8 @@ protected:
 private:
     Profiler() = default;
 
-    std::map<std::string, Section *> m_sections;
-    mutable std::mutex m_mutex = {};
+    std::map<std::string, Section *> m_sections {};
+    mutable std::mutex m_mutex {};
 
     std::size_t m_maxThreads = 1;
     bool m_combine = false;
@@ -126,15 +128,15 @@ private:
 
 class ActiveSection {
 public:
-    ActiveSection(Section & section, std::uint32_t threadNumber)
+    inline ActiveSection(Section & section, std::uint32_t threadNumber) noexcept
         : m_begin(clock_type::now()),
           m_section(section),
           m_threadNumber(threadNumber) {}
 
-    ActiveSection(Section & section, int threadNumber)
+    inline ActiveSection(Section & section, int threadNumber) noexcept
         : ActiveSection(section, static_cast<std::uint32_t>(threadNumber)) {}
 
-    ~ActiveSection() {
+    inline ~ActiveSection() {
         m_section.addDuration(clock_type::now() - m_begin, m_threadNumber);
     }
 
