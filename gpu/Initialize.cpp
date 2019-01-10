@@ -10,6 +10,7 @@
 #endif
 #include <iostream>
 #include <fstream>
+#include <utility>
 #include "GameOfLife.h"
 cl::Program CreateProgram(const std::string& filename){
     std::vector<cl::Platform> all_platforms;
@@ -43,7 +44,8 @@ cl::Program CreateProgram(const std::string& filename){
     cl::Program::Sources sources(1,std::make_pair(src.c_str(),src.length()+1));
 #else
     cl::Program::Sources sources;
-    sources.push_back(src);
+
+    sources.push_back(std::make_pair(src.data(),src.size()));
 #endif
 
     cl::Context context(default_device);
