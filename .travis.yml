@@ -19,7 +19,7 @@ matrix:
         - gcc
         - g++
         - ocl-icd-opencl-dev
-        - beignet
+        - beignet-dev
         - clinfo
         - libomp-dev
 
@@ -31,7 +31,7 @@ matrix:
         packages:
         - clang
         - ocl-icd-opencl-dev
-        - beignet
+        - beignet-dev
         - clinfo
         - libomp-dev
 
