@@ -26,7 +26,7 @@ void Simulator::step() {
     const vector<Index> & indexes = m_data->indexes();
     size_t size = indexes.size();
 
-#pragma omp parallel for firstprivate(m_evolve, m_data, size, copy)
+#pragma omp parallel for
     for (size_t i = 0; i < size; ++i) {
         PROFILER_BLOCK("simulator:step-bit", omp::getThreadNumber());
 
