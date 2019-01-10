@@ -29,14 +29,13 @@ endif ()
 
 message(STATUS " ")
 
-# Gtest
-message(STATUS "----- OpenMP_C_FLAGS                    : ${OpenMP_C_FLAGS}")
+# OpenMP
 message(STATUS "----- OpenMP_CXX_FLAGS                  : ${OpenMP_CXX_FLAGS}")
-message(STATUS "----- CMAKE_EXE_LINKER_FLAGS            : ${CMAKE_EXE_LINKER_FLAGS}")
+message(STATUS "----- OpenMP_CXX_VERSION                : ${OpenMP_CXX_VERSION}")
 
 message(STATUS " ")
 
-# OpenMP
+# GTest
 message(STATUS "----- GTEST_INCLUDE_DIRS                : ${GTEST_INCLUDE_DIRS}")
 message(STATUS "----- GTEST_BOTH_LIBRARIES              : ${GTEST_BOTH_LIBRARIES}")
 
@@ -47,6 +46,7 @@ message(STATUS "----- OpenCL_FOUND                      : ${OpenCL_FOUND}")
 if (${OpenCL_FOUND})
     message(STATUS "----- OpenCL_INCLUDE_DIRS               : ${OpenCL_INCLUDE_DIRS}")
     message(STATUS "----- OpenCL_LIBRARIES                  : ${OpenCL_LIBRARIES}")
+    message(STATUS "----- OpenCL_VERSION_STRING             : ${OpenCL_VERSION_STRING}")
 endif ()
 
 message(STATUS " ")
@@ -56,6 +56,7 @@ message(STATUS "----- Boost_FOUND                       : ${Boost_FOUND}")
 if (${Boost_FOUND})
     message(STATUS "----- Boost_INCLUDE_DIRS                : ${Boost_INCLUDE_DIRS}")
     message(STATUS "----- Boost_LIBRARIES                   : ${Boost_LIBRARIES}")
+    message(STATUS "----- Boost_LIB_VERSION                 : ${Boost_LIB_VERSION}")
 endif ()
 
 message(STATUS " ")

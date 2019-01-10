@@ -22,6 +22,7 @@ matrix:
         - beignet-dev
         - clinfo
         - libomp-dev
+        - libboost-dev
 
   - os: linux
     compiler: clang
@@ -34,6 +35,7 @@ matrix:
         - beignet-dev
         - clinfo
         - libomp-dev
+        - libboost-dev
 
   - os: osx
     osx_image: xcode8.3
@@ -49,6 +51,7 @@ before_install:
       brew install gcc;
       # brew install opencl;
       brew install libomp;
+      brew install boost;
       brew upgrade cmake;
     fi
   - export CXX="$CXX_COMPILER_NAME" CC="$CC_COMPILER_NAME"
