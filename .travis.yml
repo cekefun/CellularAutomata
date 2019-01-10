@@ -73,5 +73,4 @@ script:
   - cmake -DAF_BUILD_OPENCL=ON ..
   - make all
   - ./lib/test/libcellularautomata-test
-  - ./OpenCLTest
 
