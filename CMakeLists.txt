@@ -46,21 +46,25 @@ else ()
     find_package(Threads REQUIRED)
 endif ()
 
+find_package(OpenMP REQUIRED)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+
 find_package(OpenCL)
 
 add_subdirectory(lib)
 
-if(${OpenCL_FOUND})
-    add_compile_definitions(BY_ROW)
+if (${OpenCL_FOUND})
     add_subdirectory(gpu)
-    include_directories(${OpenCL_INCLUDE_DIRS})
-    link_directories(${OpenCL_LIBRARY})
 
     add_executable(OpenCLTest maingpu.cpp)
-    target_include_directories (OpenCLTest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-    target_link_libraries (OpenCLTest ${OpenCL_LIBRARY})
-    target_link_libraries (OpenCLTest gpulib)
-endif()
+    target_include_directories(OpenCLTest PRIVATE ${OpenCL_INCLUDE_DIRS})
+    target_link_libraries(OpenCLTest ${OpenCL_LIBRARIES})
+    target_link_libraries(OpenCLTest gpulib)
+endif ()
 
 add_executable(simulate main.cpp)
 target_link_libraries(simulate libcellularautomata)
+
+include(CMakeReport.cmake)

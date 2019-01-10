@@ -3,7 +3,7 @@
 #elif __linux__
 #include <CL/cl2.hpp>
 #else
-#include <CL/cl.hpp>
+#include <CL/cl2.hpp>
 #endif
 
 #include <iostream>

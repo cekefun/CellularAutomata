@@ -23,7 +23,7 @@ public:
 
 
 private:
-    std::array<std::array<int,5>,5> weights = {{{0,0,0,0,0},{0,1,1,1,0},{0,1,0,1,0},{0,1,1,1,0},{0,0,0,0,0}}};
+    std::array<std::array<int,5>,5> weights = {{{{0,0,0,0,0}},{{0,1,1,1,0}},{{0,1,0,1,0}},{{0,1,1,1,0}},{{0,0,0,0,0}}}};
     std::string type = "int";
     int dimensions = 2;
     int minSurvive = 2;

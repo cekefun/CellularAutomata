@@ -14,5 +14,6 @@ set(SOURCES
 
 add_library(libcellularautomata ${SOURCES})
 target_include_directories(libcellularautomata PUBLIC include)
+target_link_libraries(libcellularautomata ${OpenMP_CXX_LIBRARIES})
 
 add_subdirectory(test)

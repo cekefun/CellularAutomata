@@ -6,7 +6,7 @@
 #elif __linux__
 #include <CL/cl2.hpp>
 #else
-#include <CL/cl.hpp>
+#include <CL/cl2.hpp>
 #endif
 #include <iostream>
 #include <fstream>
@@ -39,7 +39,12 @@ cl::Program CreateProgram(const std::string& filename){
     std::string src = gol.Compile();
     std::cout<<src<<std::endl;
 
+#if defined(__APPLE__) || defined(__MACOSX)
     cl::Program::Sources sources(1,std::make_pair(src.c_str(),src.length()+1));
+#else
+    cl::Program::Sources sources;
+    sources.push_back(src);
+#endif
 
     cl::Context context(default_device);
     cl::Program program(context,sources);

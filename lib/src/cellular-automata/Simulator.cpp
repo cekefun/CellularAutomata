@@ -6,6 +6,8 @@
 #include <map>
 #include <sstream>
 
+#include <omp.h>
+
 using namespace std;
 
 namespace CellularAutomata {
@@ -18,32 +20,23 @@ Simulator::Simulator(shared_ptr<ArrayMapper> data,
 }
 
 void Simulator::step() {
-    PROFILER_METHOD("simulator:step");
+    PROFILER_BLOCK("simulator:step", omp_get_thread_num());
 
-    shared_ptr<ArrayMapper> copy;
-    {
-        PROFILER_BLOCK("clone");
-        copy = move(m_data->clone());
-    }
+    shared_ptr<ArrayMapper> copy(move(m_data->clone()));
 
     const vector<Index> & indexes = m_data->indexes();
 
+#pragma omp parallel
     {
-        PROFILER_BLOCK("evolution");
-        PROFILER_THREADS;
-//#pragma omp parallel
-        {
+        size_t size = indexes.size();
 
-            size_t size = indexes.size();
+#pragma omp for
+        for (size_t i = 0; i < size; ++i) {
+            PROFILER_BLOCK("simulator:step-bit", omp_get_thread_num());
 
-//#pragma omp for
-            for (size_t i = 0; i < size; ++i) {
-                PROFILER_BLOCK("index");
+            const Index & index = indexes[i];
 
-                const Index & index = indexes[i];
-
-                (*m_evolve)(*m_data, *copy, index);
-            }
+            (*m_evolve)(*m_data, *copy, index);
         }
     }
 
