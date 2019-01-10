@@ -4,9 +4,9 @@
 #ifdef __APPLE__
 #include <OpenCL/cl.hpp>
 #elif __linux__
-#include <CL/cl2.hpp>
+#include <CL/cl.hpp>
 #else
-#include <CL/cl2.hpp>
+#include <CL/cl.hpp>
 #endif
 #include <iostream>
 #include <fstream>
