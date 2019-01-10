@@ -64,7 +64,7 @@ find_package(OpenCL)
 add_subdirectory(lib)
 
 if (${OpenCL_FOUND})
-    add_subdirectory(gpu)
+    # add_subdirectory(gpu)
 
     # add_executable(OpenCLTest maingpu.cpp)
     # target_include_directories(OpenCLTest PRIVATE ${OpenCL_INCLUDE_DIRS})
