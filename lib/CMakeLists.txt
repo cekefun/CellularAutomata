@@ -16,3 +16,7 @@ target_include_directories(libcellularautomata PUBLIC include)
 target_link_libraries(libcellularautomata ${OpenMP_CXX_LIBRARIES})
 
 add_subdirectory(test)
+
+if (${Boost_FOUND})
+    target_compile_definitions(libcellularautomata PRIVATE CellularAutomata_Use_Boost)
+endif()

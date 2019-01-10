@@ -47,8 +47,18 @@ message(STATUS "----- OpenCL_FOUND                      : ${OpenCL_FOUND}")
 if (${OpenCL_FOUND})
     message(STATUS "----- OpenCL_INCLUDE_DIRS               : ${OpenCL_INCLUDE_DIRS}")
     message(STATUS "----- OpenCL_LIBRARIES                  : ${OpenCL_LIBRARIES}")
-    message(STATUS "----- OpenCL_LIBRARY                    : ${OpenCL_LIBRARY}")
 endif ()
+
+message(STATUS " ")
+
+# Boost
+message(STATUS "----- Boost_FOUND                       : ${Boost_FOUND}")
+if (${Boost_FOUND})
+    message(STATUS "----- Boost_INCLUDE_DIRS                : ${Boost_INCLUDE_DIRS}")
+    message(STATUS "----- Boost_LIBRARIES                   : ${Boost_LIBRARIES}")
+endif ()
+
+message(STATUS " ")
 
 function(GetTargetPropertyClean targetName property)
     get_target_property(TEMPORARY_PROPERTY ${targetName} ${property})
@@ -61,7 +71,6 @@ function(GetTargetPropertyClean targetName property)
 endfunction()
 
 function(ReportTarget targetName)
-    message(STATUS " ")
     message(STATUS "----- Target: ${targetName}")
 
     GetTargetPropertyClean(${targetName} COMPILE_DEFINITIONS)
@@ -90,6 +99,8 @@ function(ReportTarget targetName)
 
     GetTargetPropertyClean(${targetName} INTERFACE_LINK_OPTIONS)
     message(STATUS "----- INTERFACE_LINK_OPTIONS            : ${GetTargetPropertyClean_RESULT}")
+
+    message(STATUS " ")
 endfunction()
 
 # Target: libcellularautomata

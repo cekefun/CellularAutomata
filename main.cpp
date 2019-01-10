@@ -186,7 +186,7 @@ void test() {
                 impl1->allocated_bytes() - impl1->size(), impl2->allocated_bytes() - impl2->size(),
                 impl4->allocated_bytes() - impl4->size(), impl8->allocated_bytes() - impl8->size());
 
-    for (std::int64_t i = -16; i < 16; ++i) {
+    for (std::int64_t i = -16; i < 32; ++i) {
         if (i < -5) {
             std::printf("\033[90m");
         } else if (i < 12) {
@@ -275,50 +275,14 @@ public:
 };
 
 int main() {
-    //long pageSize = sysconf(_SC_PAGESIZE);
+    // long pageSize = sysconf(_SC_PAGESIZE);
 
-    //std::printf("sizeof(long long) = %td\n", sizeof(long long));
-    //std::printf("Page size: %ld\n", pageSize);
+    // std::printf("sizeof(long long) = %td\n", sizeof(long long));
+    // std::printf("Page size: %ld\n", pageSize);
 
-    SectionVisitor sectionVisitor;
+    // test();
 
-    /*
-    {
-        PROFILER_RESET;
-        runSimulation1D(1, -32, 32, 30);
-        PROFILER_COLLECT(sectionVisitor);
-    }
-    std::printf("\n\n");
-    {
-        PROFILER_RESET;
-        runSimulation1D(1, -32, 32, 126);
-        PROFILER_COLLECT(sectionVisitor);
-    }
-    std::printf("\n\n");
-    {
-        PROFILER_RESET;
-        runSimulation1D(1, -32, 32, 255);
-        PROFILER_COLLECT(sectionVisitor);
-    }
-    std::printf("\n\n");
-    {
-        PROFILER_RESET;
-        runSimulationBlinker();
-        PROFILER_COLLECT(sectionVisitor);
-    }
-    std::printf("\n\n");
-    {
-        PROFILER_RESET;
-        runSimulationPulsar();
-        PROFILER_COLLECT(sectionVisitor);
-    }
-    std::printf("\n\n");
-    {
-        PROFILER_RESET;
-        runSimulationLangtonsAnt();
-        PROFILER_COLLECT(sectionVisitor);
-    }
-    //*/
+    std::fprintf(stderr, "Maximum allowed threads: %d\n", omp::getMaxThreads());
 
     omp::setNumThreads(omp::getMaxThreads());
 
@@ -337,6 +301,8 @@ int main() {
     runSimulationLangtonsAnt();
 
 #if PROFILER_ENABLED
+    SectionVisitor sectionVisitor;
+
     profiler.collect(sectionVisitor);
 #endif
 
