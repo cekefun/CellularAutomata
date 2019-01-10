@@ -1,5 +1,7 @@
-#if defined(__APPLE__) || defined(__MACOSX)
+#ifdef __APPLE__
 #include <OpenCL/cl.hpp>
+#elif __linux__
+#include <CL/cl2.hpp>
 #else
 #include <CL/cl.hpp>
 #endif
