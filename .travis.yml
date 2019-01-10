@@ -51,7 +51,7 @@ before_install:
       brew install gcc;
       # brew install opencl;
       brew install libomp;
-      brew install boost;
+      brew upgrade boost;
       brew upgrade cmake;
     fi
   - export CXX="$CXX_COMPILER_NAME" CC="$CC_COMPILER_NAME"
