@@ -29,15 +29,22 @@ endif ()
 
 message(STATUS " ")
 
+# GTest
+message(STATUS "----- GTEST_INCLUDE_DIRS                : ${GTEST_INCLUDE_DIRS}")
+message(STATUS "----- GTEST_BOTH_LIBRARIES              : ${GTEST_BOTH_LIBRARIES}")
+
+message(STATUS " ")
+
 # OpenMP
 message(STATUS "----- OpenMP_CXX_FLAGS                  : ${OpenMP_CXX_FLAGS}")
 message(STATUS "----- OpenMP_CXX_VERSION                : ${OpenMP_CXX_VERSION}")
 
 message(STATUS " ")
 
-# GTest
-message(STATUS "----- GTEST_INCLUDE_DIRS                : ${GTEST_INCLUDE_DIRS}")
-message(STATUS "----- GTEST_BOTH_LIBRARIES              : ${GTEST_BOTH_LIBRARIES}")
+# Yaml-cpp
+message(STATUS "----- Yaml-cpp_VERSION                  : ${Yaml-cpp_VERSION}")
+message(STATUS "----- YAML_CPP_INCLUDE_DIR              : ${YAML_CPP_INCLUDE_DIR}")
+message(STATUS "----- YAML_CPP_LIBRARIES                : ${YAML_CPP_LIBRARIES}")
 
 message(STATUS " ")
 
