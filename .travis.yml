@@ -23,6 +23,7 @@ matrix:
         - clinfo
         - libomp-dev
         - libboost-dev
+        - libyaml-cpp-dev
 
   - os: linux
     compiler: clang
@@ -36,6 +37,7 @@ matrix:
         - clinfo
         - libomp-dev
         - libboost-dev
+        - libyaml-cpp-dev
 
   - os: osx
     osx_image: xcode8.3
@@ -48,11 +50,9 @@ before_install:
   - |
     if [ $TRAVIS_OS_NAME == "osx" ]; then
       brew update;
-      brew install gcc;
+      brew upgrade boost cmake;
+      brew install gcc libomp yaml-cpp;
       # brew install opencl;
-      brew install libomp;
-      brew upgrade boost;
-      brew upgrade cmake;
     fi
   - export CXX="$CXX_COMPILER_NAME" CC="$CC_COMPILER_NAME"
   # Print the C++ compiler version.
