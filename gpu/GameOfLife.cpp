@@ -5,9 +5,133 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <limits>
+
+
+void GameOfLife::addDefaultPattern(int state, int newState) {
+    if(pattern.find(state)== pattern.end()){
+           pattern[state] = std::map<std::vector<int >, int>();
+    }
+    pattern[state][{}] = newState;
+}
+
+void GameOfLife::addDirectPattern(int state, int newState, int value) {
+    if(pattern.find(state)== pattern.end()){
+        pattern[state] = std::map<std::vector<int >, int>();
+    }
+    pattern[state][{value}] = newState;
+}
+
+void GameOfLife::addRangePattern(int state, int newState, int minRange, int maxRange) {
+    if(minRange>maxRange){
+        return;
+    }
+    if(pattern.find(state)== pattern.end()){
+        pattern[state] = std::map<std::vector<int >, int>();
+    }
+    pattern[state][{minRange,maxRange}] = newState;
+}
+
+void GameOfLife::addRangePatternNegInfinity(int state, int newState, int maxRange) {
+    if(pattern.find(state)== pattern.end()){
+        pattern[state] = std::map<std::vector<int >, int>();
+    }
+    pattern[state][{std::numeric_limits<int>::infinity(),maxRange}] = newState;
+}
+
+void GameOfLife::addRangePatternPosInfinity(int state, int newState, int minRange) {
+    if(pattern.find(state)== pattern.end()){
+        pattern[state] = std::map<std::vector<int >, int>();
+    }
+    pattern[state][{minRange,std::numeric_limits<int>::infinity()}] = newState;
+}
+
+std::string GameOfLife::generateEnding(std::string stateName) const {
+    std::string result;
+    bool started = false;
+    for (auto i: pattern) {
+        if(! started){
+            result += " if (" + stateName + " == " + std::to_string(i.first) + "){";
+            started = true;
+        }else{
+            result += "else if (" + stateName + " == " + std::to_string(i.first) + "){";
+        }
+
+        if (!i.second.empty() || i.second.find({}) == i.second.end()) {
+            bool done = false;
+            for (auto &j: i.second) {
+                // First the match patterns
+                if (j.first.size() == 1) {
+                    if (done) {
+                        result += "else if( neighbours == " + std::to_string(j.first.front()) + "){target[id] = " +
+                                  std::to_string(j.second) + ";}";
+                    } else {
+                        result += "if( neighbours == " + std::to_string(j.first.front()) + "){target[id] = " +
+                                  std::to_string(j.second) + ";}";
+                        done = true;
+                    }
+                }
+            }
+            for (auto &j: i.second) {
+                // Then the range patterns
+                if (j.first.size() == 2) {
+                    if (j.first.front() == std::numeric_limits<int>::infinity()) {
+                        if (done) {
+                            result +=
+                                    "else if( neighbours <= " + std::to_string(j.first.back()) + "){target[id] = " +
+                                    std::to_string(j.second) + ";}";
+                        } else {
+                            result += "if( neighbours <= " + std::to_string(j.first.back()) + "){target[id] = " +
+                                      std::to_string(j.second) + ";}";
+                            done = true;
+                        }
+                    } else if (j.first.back() == std::numeric_limits<int>::infinity()) {
+                        if (done) {
+                            result += "else if( neighbours >= " + std::to_string(j.first.front()) +
+                                      "){target[id] = " +
+                                      std::to_string(j.second) + ";}";
+                        } else {
+                            result += "if( neighbours >= " + std::to_string(j.first.front()) + "){target[id] = " +
+                                      std::to_string(j.second) + ";}";
+                            done = true;
+                        }
+                    } else {
+                        if (done) {
+                            result +=
+                                    "else if( neighbours >= " + std::to_string(j.first.front()) +
+                                    " && neighbours <= " +
+                                    std::to_string(j.first.back()) + "){target[id] = " + std::to_string(j.second) +
+                                    ";}";
+                        } else {
+                            result +=
+                                    "if( neighbours >= " + std::to_string(j.first.front()) + " && neighbours <= " +
+                                    std::to_string(j.first.back()) + "){target[id] = " + std::to_string(j.second) +
+                                    ";}";
+                            done = true;
+                        }
+                    }
+                }
+            }
+            if (i.second.find({}) != i.second.end()) {
+                result += "else{ target[id] = " + std::to_string(i.second[{}]) + ";}";
+            } else {
+                result += "else{ target[id] = data[id];}";
+            }
+        } else if (i.second.find({}) != i.second.end()) {
+            result += "target[id] = " + std::to_string(i.second[{}]) + ";";
+        } else {
+            result += "target[id] = data[id];";
+        }
+        result += "}";
+    }
+    // safety else
+    if(started){
+        result += "else{target[id] = data[id];}";
+    }
+    return result;
+}
 
 std::string GameOfLife::Compile() const {
-
 
     std::string result = "typedef "+type+" myType;\n";
 #ifdef NAIVE
@@ -272,14 +396,10 @@ std::string GameOfLife::Compile() const {
 
     result += "myType state = data[id];\n"
               "\n";
-    result += "    if(state == 1 && (neighbours < "+std::to_string(minSurvive)+" || neighbours >"+std::to_string(maxSurvive)+")){\n"
-              "        target[id] = 0;\n"
-              "    }\n"
 
-              "    else if(state == 0 && neighbours >= "+std::to_string(minBorn)+" && neighbours <= "+std::to_string(maxBorn)+"){\n"
-              "        target[id] = 1;\n"
-              "    } else{target[id] = data[id];}"
-              "}";
+    result += generateEnding("state");
+    result += "}";
+
 #endif
 #ifdef BY_ROW
     result += "void kernel ProcessMultiArray(global myType* data, global myType* target, int length){\n";
@@ -597,12 +717,7 @@ std::string GameOfLife::Compile() const {
     }
 
     result += "        }\n";
-    result += "    if(self == 1 && (neighbours < "+std::to_string(minSurvive)+" || neighbours >"+std::to_string(maxSurvive)+")){\n"
-              "        target[id] = 0;\n"
-              "    }\n"
-              "    else if(self == 0 && neighbours >= "+std::to_string(minBorn)+" && neighbours <= "+std::to_string(maxBorn)+"){\n"
-              "        target[id] = 1;\n"
-              "    } else{target[id] = data[id];}";
+    result += generateEnding("self");
     result += "    }\n"
               "    neighbours = ";
 
@@ -731,12 +846,7 @@ std::string GameOfLife::Compile() const {
         result += "0;";
     }
     result +="    id = get_global_id(0) * length + length -2;\n";
-    result +=  "    if(nextSelf == 1 && (neighbours < "+std::to_string(minSurvive)+" || neighbours >"+std::to_string(maxSurvive)+")){\n"
-               "        target[id] = 0;\n"
-               "    }\n"
-               "    else if(nextSelf == 0 && neighbours >= "+std::to_string(minBorn)+" && neighbours <= "+std::to_string(maxBorn)+"){\n"
-               "        target[id] = 1;\n"
-               "    } else{target[id] = data[id];}";
+    result +=  generateEnding("nextSelf");
     result += "    neighbours = ";
 
     if(weights[0][0] != 0|| weights[0][1] != 0 || weights[0][2]!= 0 ||
@@ -835,12 +945,7 @@ std::string GameOfLife::Compile() const {
         result += "0;";
     }
     result +="    id = get_global_id(0) * length + length -1;\n"
-             "    if(nextRight == 1 && (neighbours < "+std::to_string(minSurvive)+" || neighbours >"+std::to_string(maxSurvive)+")){\n"
-             "        target[id] = 0;\n"
-             "    }\n"
-             "    else if(nextRight == 0 && neighbours >= "+std::to_string(minBorn)+" && neighbours <= "+std::to_string(maxBorn)+"){\n"
-             "        target[id] = 1;\n"
-             "    } else{target[id] = data[id];}"
+             +generateEnding("nextRight")+
       "}";
 #endif
     return result;

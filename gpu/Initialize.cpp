@@ -36,6 +36,9 @@ cl::Program CreateProgram(const std::string& filename){
     //std::string src(std::istreambuf_iterator<char>(programFile), (std::istreambuf_iterator<char>()));
 
     GameOfLife gol;
+    gol.addDirectPattern(0,1,3);
+    gol.addDefaultPattern(1,0);
+    gol.addRangePattern(1,1,2,3);
     std::string src = gol.Compile();
     std::cout<<src<<std::endl;
 
