@@ -18,7 +18,12 @@ inline int getThreadNumber() {
 
 inline int getMaxThreads() {
 #ifdef _OPENMP
+#ifdef CellularAutomata_MaxThreads
+    int ompValue = omp_get_max_threads();
+    return CellularAutomata_MaxThreads > ompValue ? ompValue : CellularAutomata_MaxThreads;
+#else
     return omp_get_max_threads();
+#endif
 #else
     return 1;
 #endif

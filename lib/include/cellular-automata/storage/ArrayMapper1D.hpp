@@ -22,8 +22,6 @@ public:
 
     unsigned char * operator()(const Index & index) noexcept override;
 
-    const unsigned char * operator()(const Index & index) const noexcept override;
-
     std::shared_ptr<ArrayMapper> clone() const override;
 
     const std::vector<Index> & indexes() const override;

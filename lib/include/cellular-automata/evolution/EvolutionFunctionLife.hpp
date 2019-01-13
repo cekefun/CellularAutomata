@@ -10,6 +10,14 @@ class EvolutionFunctionLife : public EvolutionFunction {
 public:
     EvolutionFunctionLife(std::bitset<8> born, std::bitset<8> survive);
 
+    EvolutionFunctionLife(const EvolutionFunctionLife &) = delete;
+
+    EvolutionFunctionLife(EvolutionFunctionLife &&) = delete;
+
+    EvolutionFunctionLife & operator=(const EvolutionFunctionLife &) = delete;
+
+    EvolutionFunctionLife & operator=(EvolutionFunctionLife &&) = delete;
+
     void operator()(std::shared_ptr<ElementMapper> mapper) override;
 
     void operator()(const ArrayMapper & prev, ArrayMapper & next, const Index & index) const override;
@@ -17,7 +25,7 @@ public:
 private:
     std::bitset<8> m_born;
     std::bitset<8> m_survive;
-    std::shared_ptr<ElementMapper> m_mapper {};
+    ElementMapper * m_mapper = nullptr;
 };
 
 }

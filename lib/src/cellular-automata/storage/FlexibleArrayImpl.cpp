@@ -14,7 +14,8 @@
 using namespace std;
 
 namespace {
-using aligned_type = typename aligned_storage<sizeof(unsigned char), alignof(std::uint64_t)>::type;
+using aligned_type = typename aligned_storage<sizeof(unsigned char), 16>::type;
+//using aligned_type = typename aligned_storage<sizeof(unsigned char), alignof(std::uint64_t)>::type;
 
 // Use aligned storage if possible to reduce the chance of page overlap happening
 #ifdef CellularAutomata_Use_Boost

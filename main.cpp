@@ -6,7 +6,6 @@
 #include "cellular-automata/storage/FlexibleArrayImpl.hpp"
 #include "cellular-automata/Simulator.hpp"
 
-#include "cellular-automata/profiler.hpp"
 #include "omp-helper.hpp"
 
 #include <cmath>
@@ -20,8 +19,6 @@
 using namespace CellularAutomata;
 
 void runSimulation1D(std::size_t elementSize, std::int64_t min, std::int64_t max, std::uint8_t rule) {
-    PROFILER_BLOCK("main-test:1D", omp::getThreadNumber());
-
     ElementsDefinition elementsDefinition { { { ElementsDefinition::Type::BOOL, 0 } } };
 
     auto data = std::make_shared<ArrayMapper1D>(elementSize, min, max);
@@ -41,8 +38,6 @@ void runSimulation1D(std::size_t elementSize, std::int64_t min, std::int64_t max
 }
 
 void runSimulationBlinker() {
-    PROFILER_BLOCK("main-test:blinker", omp::getThreadNumber());
-
     ElementsDefinition elementsDefinition { { { ElementsDefinition::Type::BOOL, 0 } } };
 
     auto data = std::make_shared<ArrayMapper2D>(1, 0, 0, 5, 5);
@@ -64,8 +59,6 @@ void runSimulationBlinker() {
 }
 
 void runSimulationPulsar() {
-    PROFILER_BLOCK("main-test:pulsar", omp::getThreadNumber());
-
     ElementsDefinition elementsDefinition { { { ElementsDefinition::Type::BOOL, 0 } } };
 
     auto data = std::make_shared<ArrayMapper2D>(1, 0, 0, 17, 17);
@@ -136,8 +129,6 @@ void runSimulationPulsar() {
 }
 
 void runSimulationLangtonsAnt() {
-    PROFILER_BLOCK("main-test:ant", omp::getThreadNumber());
-
     constexpr std::uint8_t size_bool = ElementsDefinition::type_size<ElementsDefinition::Type::BOOL>();
     constexpr std::uint8_t size_int8 = ElementsDefinition::type_size<ElementsDefinition::Type::INT8>();
 
@@ -163,7 +154,7 @@ void runSimulationLangtonsAnt() {
     // sim.printResult();
 }
 
-void test() {
+void test1D() {
     ArrayMapper1D data1(1, -5, 12);
     ArrayMapper1D data2(2, -5, 12);
     ArrayMapper1D data4(4, -5, 12);
@@ -210,69 +201,68 @@ void test() {
     }
 }
 
-class SectionVisitor {
-private:
-    static std::string durationToString(profiler::duration_type time) {
-        using namespace std::chrono;
-        using days = duration<std::uint32_t, std::ratio<86400>>;
-        using float_seconds = std::chrono::duration<double>;
+void test2D() {
+    constexpr std::int64_t minX = -1;
+    constexpr std::int64_t minY = -3;
+    constexpr std::int64_t maxX = +4;
+    constexpr std::int64_t maxY = +2;
 
-        days timeDays(duration_cast<days>(time));
-        time -= duration_cast<profiler::duration_type>(timeDays);
+    std::printf("X: [%+-3ld, %+3ld(    Y: [%+-3ld, %+3ld(    size(X = %-3ld; Y = %-3ld)\n", minX, maxX, minY, maxY, maxX - minX, maxY - minY);
 
-        hours timeHours(duration_cast<hours>(time));
-        time -= duration_cast<profiler::duration_type>(timeHours);
+    ArrayMapper2D data1(1, minX, minY, maxX, maxY);
+    ArrayMapper2D data2(2, minX, minY, maxX, maxY);
+    ArrayMapper2D data4(4, minX, minY, maxX, maxY);
+    ArrayMapper2D data8(8, minX, minY, maxX, maxY);
 
-        minutes timeMinutes(duration_cast<minutes>(time));
-        time -= duration_cast<profiler::duration_type>(timeMinutes);
+    const FlexibleArray & back1 = data1._backend();
+    const FlexibleArray & back2 = data2._backend();
+    const FlexibleArray & back4 = data4._backend();
+    const FlexibleArray & back8 = data8._backend();
 
-        float_seconds floatingSeconds = duration_cast<float_seconds>(time);
+    auto impl1 = reinterpret_cast<IFlexibleArrayImpl *>(back1._impl());
+    auto impl2 = reinterpret_cast<IFlexibleArrayImpl *>(back2._impl());
+    auto impl4 = reinterpret_cast<IFlexibleArrayImpl *>(back4._impl());
+    auto impl8 = reinterpret_cast<IFlexibleArrayImpl *>(back8._impl());
 
-        std::stringstream ss;
+    auto items1 = data1.indexes();
 
-        if (timeDays.count() == 1) {
-            ss << "1 day, ";
-        } else if (timeDays.count() > 1) {
-            ss << timeDays.count() << " days, ";
-        }
-        if (timeHours.count() == 1) {
-            ss << "1 hour, ";
-        } else if (timeHours.count() > 1) {
-            ss << timeHours.count() << " hours, ";
-        }
-        if (timeMinutes.count() == 1) {
-            ss << "1 minute, ";
-        } else if (timeMinutes.count() > 1) {
-            ss << timeMinutes.count() << " minutes, ";
-        }
-        if (std::abs(floatingSeconds.count() - 1.0) < 0.00005) {
-            ss << "1 second";
+    for (const Index & item : items1) {
+        std::printf("Index: %d(%ld, %ld, %ld)\n", static_cast<unsigned int>(item.dimensionality) + 1, item.x, item.y, item.z);
+
+        *reinterpret_cast<std::uint8_t *>(data1(item)) = 0xFF;
+        *reinterpret_cast<std::uint16_t *>(data2(item)) = 0xFFFF;
+        *reinterpret_cast<std::uint32_t *>(data4(item)) = 0xFFFFFFFF;
+        *reinterpret_cast<std::uint64_t *>(data8(item)) = 0xFFFFFFFFFFFFFFFF;
+    }
+
+    std::printf("Reported size:   %-4td                 %-4td                   %-4td                       %-4td\n",
+                impl1->size(), impl2->size(), impl4->size(), impl8->size());
+    std::printf("Divided by n:    %-4td                 %-4td                   %-4td                       %-4td\n",
+                impl1->size() / 1, impl2->size() / 2, impl4->size() / 4, impl8->size() / 8);
+    std::printf("Allocated bytes: %-4td                 %-4td                   %-4td                       %-4td\n",
+                impl1->allocated_bytes(), impl2->allocated_bytes(), impl4->allocated_bytes(), impl8->allocated_bytes());
+    std::printf("Divided by 16:   %-4td                 %-4td                   %-4td                       %-4td\n",
+                impl1->allocated_bytes() / 16, impl2->allocated_bytes() / 16, impl4->allocated_bytes() / 16, impl8->allocated_bytes() / 16);
+    std::printf("Unused bytes:    %-4td                 %-4td                   %-4td                       %-4td\n",
+                impl1->allocated_bytes() - impl1->size(), impl2->allocated_bytes() - impl2->size(),
+                impl4->allocated_bytes() - impl4->size(), impl8->allocated_bytes() - impl8->size());
+
+    for (std::uint64_t i = 0; i < impl1->allocated_bytes(); ++i) {
+        if (i < impl1->size()) {
+            std::printf("\033[94m");
         } else {
-            ss.setf(std::ios::fixed, std::ios::floatfield);
-            ss.precision(4);
-            ss << floatingSeconds.count() << " seconds";
+            std::printf("\033[97m");
         }
-
-        return ss.str();
-    }
-
-public:
-    void operator()(const profiler::Section & section) {
-        profiler::duration_type totalDuration = section.duration();
-        std::size_t numCalls = section.num_calls();
-
-        std::string durationString = durationToString(totalDuration);
-        std::string durationAverageString = durationToString(totalDuration / section.num_threads());
-
-        std::fprintf(stderr, "%-20s: %8ld calls spending %s distributed over %ld threads (average %s per thread)\n",
-                     section.name().c_str(),
-                     numCalls,
-                     durationString.c_str(),
-                     section.num_threads(),
-                     durationAverageString.c_str()
+        std::printf(" %3ld: %08jX = %02X        %08jX = %04X        %08jX = %08X        %08jX = %016lX\n", i,
+                    reinterpret_cast<std::uint64_t>(back1[i]), *(reinterpret_cast<const std::uint8_t *>(back1[i])),
+                    reinterpret_cast<std::uint64_t>(back2[i]), *(reinterpret_cast<const std::uint16_t *>(back2[i])),
+                    reinterpret_cast<std::uint64_t>(back4[i]), *(reinterpret_cast<const std::uint32_t *>(back4[i])),
+                    reinterpret_cast<std::uint64_t>(back8[i]), *(reinterpret_cast<const std::uint64_t *>(back8[i]))
         );
+        std::printf("\033[0m");
     }
-};
+
+}
 
 int main() {
     // long pageSize = sysconf(_SC_PAGESIZE);
@@ -280,18 +270,13 @@ int main() {
     // std::printf("sizeof(long long) = %td\n", sizeof(long long));
     // std::printf("Page size: %ld\n", pageSize);
 
-    // test();
+    // test1D();
+    // test2D();
 
     std::fprintf(stderr, "Maximum allowed threads: %d\n", omp::getMaxThreads());
 
-    omp::setNumThreads(omp::getMaxThreads());
-
-#if PROFILER_ENABLED
-    profiler::Profiler & profiler = profiler::Profiler::get();
-    profiler.reset();
-    profiler.setMaxThreads(static_cast<std::size_t>(omp::getMaxThreads()));
-    profiler.setMode(PROFILER_MODE_SEPARATE);
-#endif
+    omp::setNumThreads(1);
+    //omp::setNumThreads(omp::getMaxThreads());
 
     runSimulation1D(1, -32, 32, 30);
     runSimulation1D(1, -32, 32, 126);
@@ -299,12 +284,6 @@ int main() {
     runSimulationBlinker();
     runSimulationPulsar();
     runSimulationLangtonsAnt();
-
-#if PROFILER_ENABLED
-    SectionVisitor sectionVisitor;
-
-    profiler.collect(sectionVisitor);
-#endif
 
     return 0;
 }

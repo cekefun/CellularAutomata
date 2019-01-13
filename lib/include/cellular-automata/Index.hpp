@@ -9,19 +9,19 @@ struct Index {
         ONE, TWO, THREE
     };
 
-    inline static constexpr Index make(std::int64_t x) {
+    inline static constexpr Index make(std::int64_t x) noexcept {
         return Index { x, 0, 0, Dimensionality::ONE };
     }
 
-    inline static constexpr Index make(std::int64_t x, std::int64_t y) {
+    inline static constexpr Index make(std::int64_t x, std::int64_t y) noexcept {
         return Index { x, y, 0, Dimensionality::TWO };
     }
 
-    inline static constexpr Index make(std::int64_t x, std::int64_t y, std::int64_t z) {
+    inline static constexpr Index make(std::int64_t x, std::int64_t y, std::int64_t z) noexcept {
         return Index { x, y, z, Dimensionality::THREE };
     }
 
-    inline bool operator==(const Index & other) const {
+    inline bool operator==(const Index & other) const noexcept {
         if (dimensionality != other.dimensionality) {
             return false;
         } else if (x != other.x) {
@@ -34,11 +34,11 @@ struct Index {
         return true;
     }
 
-    inline bool operator!=(const Index & other) const {
+    inline bool operator!=(const Index & other) const noexcept {
         return !operator==(other);
     }
 
-    inline bool operator<(const Index & other) const {
+    inline bool operator<(const Index & other) const noexcept {
         if (dimensionality < other.dimensionality) {
             return true;
         } else if (dimensionality == other.dimensionality) {
@@ -55,7 +55,7 @@ struct Index {
         return false;
     }
 
-    inline bool operator>(const Index & other) const {
+    inline bool operator>(const Index & other) const noexcept {
         if (dimensionality > other.dimensionality) {
             return true;
         } else if (dimensionality == other.dimensionality) {
@@ -72,19 +72,19 @@ struct Index {
         return false;
     }
 
-    inline bool operator<=(const Index & other) const {
+    inline bool operator<=(const Index & other) const noexcept {
         return operator==(other) || operator<(other);
     }
 
-    inline bool operator>=(const Index & other) const {
+    inline bool operator>=(const Index & other) const noexcept {
         return operator==(other) || operator>(other);
     }
 
-    inline Index operator+(const Index & other) const {
+    inline constexpr Index operator+(const Index & other) const noexcept {
         return Index { x + other.x, y + other.y, z + other.z, dimensionality };
     }
 
-    inline Index operator-(const Index & other) const {
+    inline constexpr Index operator-(const Index & other) const noexcept {
         return Index { x - other.x, y - other.y, z - other.z, dimensionality };
     }
 

@@ -5,7 +5,7 @@
 using namespace std;
 
 namespace {
-inline size_t map(int64_t min, int64_t, const CellularAutomata::Index & index) {
+inline constexpr size_t map(int64_t min, int64_t, const CellularAutomata::Index & index) noexcept {
     return static_cast<size_t>(index.x - min);
 }
 }
@@ -43,26 +43,10 @@ ArrayMapper1D::ArrayMapper1D(ArrayMapper1D && o) noexcept
       m_array(move(o.m_array)) {}
 
 bool ArrayMapper1D::exists(const Index & index) const noexcept {
-//    if (index.dimensionality != Index::Dimensionality::ONE) {
-//        throw logic_error("Invalid index dimension");
-//    }
-
     return index.x >= m_min && index.x < m_max;
 }
 
 unsigned char * ArrayMapper1D::operator()(const Index & index) noexcept {
-//    if (index.dimensionality != Index::Dimensionality::ONE) {
-//        throw logic_error("Invalid index dimension");
-//    }
-
-    return m_array[map(m_min, m_max, index)];
-}
-
-const unsigned char * ArrayMapper1D::operator()(const Index & index) const noexcept {
-//    if (index.dimensionality != Index::Dimensionality::ONE) {
-//        throw logic_error("Invalid index dimension");
-//    }
-
     return m_array[map(m_min, m_max, index)];
 }
 

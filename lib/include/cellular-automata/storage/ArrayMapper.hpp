@@ -26,7 +26,9 @@ public:
 
     virtual unsigned char * operator()(const Index & index) noexcept = 0;
 
-    virtual const unsigned char * operator()(const Index & index) const noexcept = 0;
+    inline const unsigned char * operator()(const Index & index) const noexcept {
+        return const_cast<ArrayMapper *>(this)->operator()(index);
+    }
 
     virtual std::shared_ptr<ArrayMapper> clone() const = 0;
 

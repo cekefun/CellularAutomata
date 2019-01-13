@@ -22,8 +22,6 @@ public:
 
     unsigned char * operator()(const Index & index) noexcept override ;
 
-    const unsigned char * operator()(const Index & index) const noexcept override;
-
     std::shared_ptr<ArrayMapper> clone() const override;
 
     const std::vector<Index> & indexes() const override;
@@ -39,6 +37,7 @@ private:
     std::int64_t m_minY;
     std::int64_t m_maxX;
     std::int64_t m_maxY;
+    std::uint8_t m_offsetY;
     std::size_t m_elementSize;
     std::vector<Index> m_indexes;
     FlexibleArray m_array;

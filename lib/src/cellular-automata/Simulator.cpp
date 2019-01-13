@@ -1,8 +1,5 @@
 #include "cellular-automata/Simulator.hpp"
 
-#include "cellular-automata/profiler.hpp"
-#include "omp-helper.hpp"
-
 #include <cstdio>
 #include <map>
 #include <sstream>
@@ -19,18 +16,18 @@ Simulator::Simulator(shared_ptr<ArrayMapper> data,
 }
 
 void Simulator::step() {
-    PROFILER_BLOCK("simulator:step", omp::getThreadNumber());
-
     shared_ptr<ArrayMapper> copy(m_data->clone());
 
-    const vector<Index> & indexes = m_data->indexes();
-    size_t size = indexes.size();
+    const vector<Index> * indexes = &m_data->indexes();
+    size_t size = indexes->size();
 
-#pragma omp parallel for
+    EvolutionFunction * evolutionFunction = m_evolve.get();
+    ArrayMapper * oldData = m_data.get();
+    ArrayMapper * newData = copy.get();
+
+#pragma omp parallel for firstprivate(evolutionFunction, oldData, newData, indexes)
     for (size_t i = 0; i < size; ++i) {
-        PROFILER_BLOCK("simulator:step-bit", omp::getThreadNumber());
-
-        (*m_evolve)(*m_data, *copy, indexes[i]);
+        (*evolutionFunction)(*oldData, *newData, (*indexes)[i]);
     }
 
     m_oldStates.emplace_back(m_data);
