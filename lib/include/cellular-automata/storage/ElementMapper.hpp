@@ -47,7 +47,7 @@ public:
         }
 #endif
 
-        auto def = m_definition[elementIndex];
+        const auto & def = m_definition[elementIndex];
 
 #if CellularAutomata_ElementMapper_Verify
         if (def.first != ElementsDefinition::type<T>()) {

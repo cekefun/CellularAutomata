@@ -19,8 +19,14 @@ add_subdirectory(test)
 
 if (${Boost_FOUND})
     target_compile_definitions(libcellularautomata PUBLIC CellularAutomata_Use_Boost)
-endif()
+endif ()
 
 if (DEFINED CellularAutomata_MaxThreads)
     target_compile_definitions(libcellularautomata PUBLIC CellularAutomata_MaxThreads=${CellularAutomata_MaxThreads})
+endif ()
+
+if (DEFINED CellularAutomata_NoOpenMP)
+    if (${CellularAutomata_NoOpenMP})
+        target_compile_definitions(libcellularautomata PUBLIC CellularAutomata_NoOpenMP)
+    endif ()
 endif ()

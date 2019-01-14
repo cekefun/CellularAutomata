@@ -9,7 +9,7 @@
 namespace omp {
 
 inline int getThreadNumber() {
-#ifdef _OPENMP
+#if defined(_OPENMP) and not defined(CellularAutomata_NoOpenMP)
     return omp_get_thread_num();
 #else
     return 0; // Always report the master thread number
@@ -17,7 +17,7 @@ inline int getThreadNumber() {
 }
 
 inline int getMaxThreads() {
-#ifdef _OPENMP
+#if defined(_OPENMP) and not defined(CellularAutomata_NoOpenMP)
 #ifdef CellularAutomata_MaxThreads
     int ompValue = omp_get_max_threads();
     return CellularAutomata_MaxThreads > ompValue ? ompValue : CellularAutomata_MaxThreads;
@@ -30,13 +30,13 @@ inline int getMaxThreads() {
 }
 
 inline void setNumThreads(int numThreads) {
-#ifdef _OPENMP
+#if defined(_OPENMP) and not defined(CellularAutomata_NoOpenMP)
     omp_set_num_threads(numThreads);
 #endif
 }
 
 inline bool inParallel() {
-#ifdef _OPENMP
+#if defined(_OPENMP) and not defined(CellularAutomata_NoOpenMP)
     return static_cast<bool>(omp_in_parallel());
 #else
     return false;

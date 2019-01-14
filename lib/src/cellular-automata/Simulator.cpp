@@ -25,7 +25,9 @@ void Simulator::step() {
     ArrayMapper * oldData = m_data.get();
     ArrayMapper * newData = copy.get();
 
+#ifndef CellularAutomata_NoOpenMP
 #pragma omp parallel for firstprivate(evolutionFunction, oldData, newData, indexes)
+#endif
     for (size_t i = 0; i < size; ++i) {
         (*evolutionFunction)(*oldData, *newData, (*indexes)[i]);
     }
