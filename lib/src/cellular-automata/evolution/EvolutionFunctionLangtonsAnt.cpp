@@ -34,8 +34,9 @@ void EvolutionFunctionLangtonsAnt::operator()(const ArrayMapper & prev,
     {
         Index neighbour = index - index_N;
         if (prev.exists(neighbour)) { // Up neighbour
-            bool color = m_mapper->map<bool>(prev(neighbour), 0);
-            int8_t ant = m_mapper->map<int8_t>(prev(neighbour), 1);
+            const unsigned char * addr = prev(neighbour);
+            bool color = m_mapper->map<bool>(addr, 0);
+            int8_t ant = m_mapper->map<int8_t>(addr, 1);
 
             if (color ? ant == dir_right : ant == dir_left) {
                 if (ant_result > 0) {
@@ -49,8 +50,9 @@ void EvolutionFunctionLangtonsAnt::operator()(const ArrayMapper & prev,
     if (ant_result != -1) {
         Index neighbour = index - index_E;
         if (prev.exists(neighbour)) { // Right neighbour
-            bool color = m_mapper->map<bool>(prev(neighbour), 0);
-            int8_t ant = m_mapper->map<int8_t>(prev(neighbour), 1);
+            const unsigned char * addr = prev(neighbour);
+            bool color = m_mapper->map<bool>(addr, 0);
+            int8_t ant = m_mapper->map<int8_t>(addr, 1);
 
             if (color ? ant == dir_down : ant == dir_up) {
                 if (ant_result > 0) {
@@ -64,8 +66,9 @@ void EvolutionFunctionLangtonsAnt::operator()(const ArrayMapper & prev,
     if (ant_result != -1) {
         Index neighbour = index - index_S;
         if (prev.exists(neighbour)) { // Down neighbour
-            bool color = m_mapper->map<bool>(prev(neighbour), 0);
-            int8_t ant = m_mapper->map<int8_t>(prev(neighbour), 1);
+            const unsigned char * addr = prev(neighbour);
+            bool color = m_mapper->map<bool>(addr, 0);
+            int8_t ant = m_mapper->map<int8_t>(addr, 1);
 
             if (color ? ant == dir_left : ant == dir_right) {
                 if (ant_result > 0) {
@@ -79,8 +82,9 @@ void EvolutionFunctionLangtonsAnt::operator()(const ArrayMapper & prev,
     if (ant_result != -1) {
         Index neighbour = index - index_W;
         if (prev.exists(neighbour)) { // Left neighbour
-            bool color = m_mapper->map<bool>(prev(neighbour), 0);
-            int8_t ant = m_mapper->map<int8_t>(prev(neighbour), 1);
+            const unsigned char * addr = prev(neighbour);
+            bool color = m_mapper->map<bool>(addr, 0);
+            int8_t ant = m_mapper->map<int8_t>(addr, 1);
 
             if (color ? ant == dir_up : ant == dir_down) {
                 if (ant_result > 0) {
